@@ -35,7 +35,7 @@ namespace DependencyInjectionWorkshopTests
         [Test]
         public void is_valid()
         {
-            GivenPassword();
+            GivenPassword(DefaultAccountId, DefaultHashedPassword);
             _hash.Compute(DefaultInputPassword).Returns(DefaultHashedPassword);
             _otpService.GetCurrentOtp(DefaultAccountId).Returns(DefaultOtp);
 
@@ -43,9 +43,9 @@ namespace DependencyInjectionWorkshopTests
             Assert.IsTrue(isValid);
         }
 
-        private void GivenPassword()
+        private void GivenPassword(string accountId, string hashedPassword)
         {
-            _profile.GetPassword(DefaultAccountId).Returns(DefaultHashedPassword);
+            _profile.GetPassword(accountId).Returns(hashedPassword);
         }
     }
 }
