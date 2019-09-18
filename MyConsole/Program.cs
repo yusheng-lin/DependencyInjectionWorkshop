@@ -79,6 +79,7 @@ namespace MyConsole
 
     public interface IOrderService
     {
+        [CacheResult(Duration = 1000)]
         string CreateGuid(string account, int token);
     }
 
