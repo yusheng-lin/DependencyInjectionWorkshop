@@ -37,10 +37,7 @@ namespace DependencyInjectionWorkshop.Models
 
         public bool Verify(string accountId, string password, string otp)
         {
-            if (_failedCounter.IsAccountLocked(accountId))
-            {
-                throw new FailedTooManyTimesException();
-            }
+            CheckAccountIsLocked(accountId);
 
             var currentPassword = _profile.GetPassword(accountId);
 
@@ -62,6 +59,14 @@ namespace DependencyInjectionWorkshop.Models
                 _logger.Info($"accountId:{accountId} failed times:{failedCount}");
 
                 return false;
+            }
+        }
+
+        private void CheckAccountIsLocked(string accountId)
+        {
+            if (_failedCounter.IsAccountLocked(accountId))
+            {
+                throw new FailedTooManyTimesException();
             }
         }
     }
