@@ -5,13 +5,36 @@ using SlackAPI;
 
 namespace DependencyInjectionWorkshop.Models
 {
+    public class Sha256Adapter
+    {
+        public Sha256Adapter()
+        {
+        }
+
+        public string ComputeHashedPassword(string password)
+        {
+            var crypt = new System.Security.Cryptography.SHA256Managed();
+            var hash = new StringBuilder();
+            var crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(password));
+            foreach (var theByte in crypto)
+            {
+                hash.Append(theByte.ToString("x2"));
+            }
+
+            var hashedPassword = hash.ToString();
+            return hashedPassword;
+        }
+    }
+
     public class AuthenticationService
     {
         private readonly ProfileDao _profileDao;
+        private readonly Sha256Adapter _sha256Adapter;
 
         public AuthenticationService()
         {
             _profileDao = new ProfileDao();
+            _sha256Adapter = new Sha256Adapter();
         }
 
         public bool Verify(string accountId, string password, string otp)
@@ -23,7 +46,7 @@ namespace DependencyInjectionWorkshop.Models
 
             var passwordFromDb = _profileDao.GetPasswordFromDb(accountId);
 
-            var hashedPassword = ComputeHashedPassword(password);
+            var hashedPassword = _sha256Adapter.ComputeHashedPassword(password);
 
             var currentOtp = GetCurrentOtp(accountId);
 
@@ -50,20 +73,6 @@ namespace DependencyInjectionWorkshop.Models
             var addFailedCountResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
                                          .PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
             addFailedCountResponse.EnsureSuccessStatusCode();
-        }
-
-        private static string ComputeHashedPassword(string password)
-        {
-            var crypt = new System.Security.Cryptography.SHA256Managed();
-            var hash = new StringBuilder();
-            var crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(password));
-            foreach (var theByte in crypto)
-            {
-                hash.Append(theByte.ToString("x2"));
-            }
-
-            var hashedPassword = hash.ToString();
-            return hashedPassword;
         }
 
         private static string GetCurrentOtp(string accountId)
