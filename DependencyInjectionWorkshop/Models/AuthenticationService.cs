@@ -8,9 +8,9 @@ namespace DependencyInjectionWorkshop.Models
         private readonly IFailedCounter _failedCounter;
         private readonly IHash _hash;
         private readonly NLogAdapter _nLogAdapter;
+        private readonly INotification _notification;
         private readonly IOtpService _otpService;
         private readonly IProfile _profile;
-        private readonly SlackAdapter _slackAdapter;
 
         public AuthenticationService()
         {
@@ -18,7 +18,7 @@ namespace DependencyInjectionWorkshop.Models
             _hash = new Sha256Adapter();
             _otpService = new OtpService();
             _failedCounter = new FailedCounter();
-            _slackAdapter = new SlackAdapter();
+            _notification = new SlackAdapter();
             _nLogAdapter = new NLogAdapter();
         }
 
@@ -45,7 +45,7 @@ namespace DependencyInjectionWorkshop.Models
             {
                 _failedCounter.Add(accountId);
 
-                _slackAdapter.Notify(accountId);
+                _notification.Notify(accountId);
 
                 int failedCount = _failedCounter.Get(accountId);
                 _nLogAdapter.LogFailedCount($"accountId:{accountId} failed times:{failedCount}");
