@@ -37,10 +37,15 @@ namespace DependencyInjectionWorkshopTests
         {
             GivenPassword(DefaultAccountId, DefaultHashedPassword);
             GivenHash(DefaultInputPassword, DefaultHashedPassword);
-            _otpService.GetCurrentOtp(DefaultAccountId).Returns(DefaultOtp);
+            GivenOtp(DefaultAccountId, DefaultOtp);
 
             var isValid = _authenticationService.Verify(DefaultAccountId, DefaultInputPassword, DefaultOtp);
             Assert.IsTrue(isValid);
+        }
+
+        private void GivenOtp(string accountId, string otp)
+        {
+            _otpService.GetCurrentOtp(accountId).Returns(otp);
         }
 
         private void GivenHash(string inputPassword, string hashedPassword)
