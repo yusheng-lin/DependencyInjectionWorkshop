@@ -51,6 +51,13 @@ namespace DependencyInjectionWorkshop.Models
         {
         }
 
+        public void AddFailedCount(string accountId)
+        {
+            var addFailedCountResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
+                                         .PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
+            addFailedCountResponse.EnsureSuccessStatusCode();
+        }
+
         public void ResetFailedCount(string accountId)
         {
             var resetResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
@@ -95,7 +102,7 @@ namespace DependencyInjectionWorkshop.Models
             }
             else
             {
-                AddFailedCount(accountId);
+                _failedCounter.AddFailedCount(accountId);
 
                 Notify(accountId);
 
@@ -103,13 +110,6 @@ namespace DependencyInjectionWorkshop.Models
 
                 return false;
             }
-        }
-
-        private static void AddFailedCount(string accountId)
-        {
-            var addFailedCountResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
-                                         .PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
-            addFailedCountResponse.EnsureSuccessStatusCode();
         }
 
         private static int GetFailedCount(string accountId, HttpClient httpClient)
