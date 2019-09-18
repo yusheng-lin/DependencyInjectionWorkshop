@@ -11,7 +11,6 @@ namespace DependencyInjectionWorkshop.Models
     public class AuthenticationService : IAuthentication
     {
         private readonly IFailedCounter _failedCounter;
-        private readonly FailedCounterDecorator _failedCounterDecorator;
         private readonly IHash _hash;
         private readonly ILogger _logger;
         private readonly IOtpService _otpService;
@@ -36,11 +35,6 @@ namespace DependencyInjectionWorkshop.Models
             _logger = new NLogAdapter();
         }
 
-        public IFailedCounter FailedCounter
-        {
-            get { return _failedCounter; }
-        }
-
         public bool Verify(string accountId, string password, string otp)
         {
             var currentPassword = _profile.GetPassword(accountId);
@@ -55,8 +49,6 @@ namespace DependencyInjectionWorkshop.Models
             }
             else
             {
-                //_failedCounterDecorator.AddFailedCount(accountId, this);
-
                 int failedCount = _failedCounter.Get(accountId);
                 _logger.Info($"accountId:{accountId} failed times:{failedCount}");
 
