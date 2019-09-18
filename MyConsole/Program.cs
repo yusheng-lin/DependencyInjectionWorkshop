@@ -3,40 +3,69 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Autofac;
 using DependencyInjectionWorkshop.Models;
 
 namespace MyConsole
 {
     class Program
     {
-        private static ILogger _logger;
-        private static INotification _notification;
-        private static IFailedCounter _failedCounter;
-        private static IOtpService _otpService;
-        private static IHash _hash;
-        private static IProfile _profile;
-        private static IAuthentication _authenticationService;
+        //private static ILogger _logger;
+        //private static INotification _notification;
+        //private static IFailedCounter _failedCounter;
+        //private static IOtpService _otpService;
+        //private static IHash _hash;
+        //private static IProfile _profile;
+        //private static IAuthentication _authenticationService;
+        private static IContainer _container;
 
         static void Main(string[] args)
         {
-            _logger = new FakeLogger();
-            _notification = new FakeSlack();
-            _failedCounter = new FakeFailedCounter();
-            _otpService = new FakeOtp();
-            _hash = new FakeHash();
-            _profile = new FakeProfile();
+            //_logger = new FakeLogger();
+            //_notification = new FakeSlack();
+            //_failedCounter = new FakeFailedCounter();
+            //_otpService = new FakeOtp();
+            //_hash = new FakeHash();
+            //_profile = new FakeProfile();
 
-            _authenticationService =
-                new AuthenticationService(_profile, _hash, _otpService);
+            RegisterContainer();
 
-            _authenticationService = new NotificationDecorator(_authenticationService, _notification);
+            var authentication = _container.Resolve<IAuthentication>();
+            //_authenticationService =
+            //    new AuthenticationService(_profile, _hash, _otpService);
 
-            _authenticationService = new FailedCounterDecorator(_authenticationService, _failedCounter);
+            //_authenticationService = new NotificationDecorator(_authenticationService, _notification);
 
-            _authenticationService = new LogDecorator(_authenticationService, _failedCounter, _logger);
+            //_authenticationService = new FailedCounterDecorator(_authenticationService, _failedCounter);
 
-            var isValid = _authenticationService.Verify("joey", "abc", "wrong otp");
+            //_authenticationService = new LogDecorator(_authenticationService, _failedCounter, _logger);
+
+            var isValid = authentication.Verify("joey", "abc", "wrong otp");
             Console.WriteLine(isValid);
+        }
+
+        private static void RegisterContainer()
+        {
+            var builder = new ContainerBuilder();
+
+            builder.RegisterType<FakeProfile>().As<IProfile>();
+            builder.RegisterType<FakeHash>().As<IHash>();
+            builder.RegisterType<FakeOtp>().As<IOtpService>();
+            builder.RegisterType<FakeFailedCounter>().As<IFailedCounter>();
+            builder.RegisterType<FakeSlack>().As<INotification>();
+            builder.RegisterType<FakeLogger>().As<ILogger>();
+
+            builder.RegisterType<AuthenticationService>().As<IAuthentication>();
+
+            builder.RegisterType<NotificationDecorator>();
+            builder.RegisterType<FailedCounterDecorator>();
+            builder.RegisterType<LogDecorator>();
+
+            builder.RegisterDecorator<NotificationDecorator, IAuthentication>();
+            builder.RegisterDecorator<FailedCounterDecorator, IAuthentication>();
+            builder.RegisterDecorator<LogDecorator, IAuthentication>();
+
+            _container = builder.Build();
         }
     }
 
