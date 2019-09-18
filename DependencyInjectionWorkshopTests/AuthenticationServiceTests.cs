@@ -11,6 +11,7 @@ namespace DependencyInjectionWorkshopTests
         private const string DefaultHashedPassword = "my hashed password";
         private const string DefaultOtp = "123456";
         private const string DefaultInputPassword = "abc";
+        private const int DefaultFailedCount = 666;
         private AuthenticationService _authenticationService;
         private IFailedCounter _failedCounter;
         private IHash _hash;
@@ -71,11 +72,11 @@ namespace DependencyInjectionWorkshopTests
         [Test]
         public void log_failed_count_when_invalid()
         {
-            _failedCounter.Get(DefaultAccountId).Returns(666);
+            GivenFailedCount(DefaultFailedCount);
 
             WhenInvalid();
 
-            _logger.Received(1).Info(Arg.Is<string>(m => m.Contains("666") && m.Contains(DefaultAccountId)));
+            LogShouldContains(DefaultAccountId, DefaultFailedCount);
         }
 
         private static void ShouldBeInvalid(bool isValid)
@@ -86,6 +87,17 @@ namespace DependencyInjectionWorkshopTests
         private static void ShouldBeValid(bool isValid)
         {
             Assert.IsTrue(isValid);
+        }
+
+        private void LogShouldContains(string accountId, int failedCount)
+        {
+            _logger.Received(1).Info(
+                Arg.Is<string>(m => m.Contains(failedCount.ToString()) && m.Contains(accountId)));
+        }
+
+        private void GivenFailedCount(int failedCount)
+        {
+            _failedCounter.Get(DefaultAccountId).Returns(failedCount);
         }
 
         private void ShouldAddFailedCount(string accountId)
