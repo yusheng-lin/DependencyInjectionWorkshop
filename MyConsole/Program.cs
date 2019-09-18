@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extras.DynamicProxy;
@@ -17,10 +18,17 @@ namespace MyConsole
         {
             RegisterContainer();
 
-            var authentication = _container.Resolve<IAuthentication>();
+            //var authentication = _container.Resolve<IAuthentication>();
 
-            var isValid = authentication.Verify("joey", "abc", "wrong otp");
-            Console.WriteLine(isValid);
+            //var isValid = authentication.Verify("joey", "abc", "wrong otp");
+            //Console.WriteLine(isValid);
+
+            var orderService = new OrderService();
+
+            Console.WriteLine(orderService.CreateGuid("Joey", 91));
+            Console.WriteLine(orderService.CreateGuid("Joey", 91));
+            Console.WriteLine(orderService.CreateGuid("Tom", 66));
+            Console.WriteLine(orderService.CreateGuid("Joey", 91));
         }
 
         private static void RegisterContainer()
@@ -58,6 +66,16 @@ namespace MyConsole
             //builder.RegisterDecorator<LogMethodInfoDecorator, IAuthentication>();
 
             _container = builder.Build();
+        }
+    }
+
+    public class OrderService
+    {
+        public string CreateGuid(string account, int token)
+        {
+            Console.WriteLine($"sleep 1.5 seconds, account:{account}, token:{token}");
+            Thread.Sleep(1500);
+            return Guid.NewGuid().ToString("N");
         }
     }
 
