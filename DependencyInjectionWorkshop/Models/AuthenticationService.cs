@@ -93,9 +93,22 @@ namespace DependencyInjectionWorkshop.Models
         }
     }
 
+    public class NLogAdapter
+    {
+        public NLogAdapter()
+        {
+        }
+
+        public void LogFailedCount(string message)
+        {
+            NLog.LogManager.GetCurrentClassLogger().Info(message);
+        }
+    }
+
     public class AuthenticationService
     {
         private readonly FailedCounter _failedCounter;
+        private readonly NLogAdapter _nLogAdapter;
         private readonly OtpService _otpService;
         private readonly ProfileDao _profileDao;
         private readonly Sha256Adapter _sha256Adapter;
@@ -108,6 +121,7 @@ namespace DependencyInjectionWorkshop.Models
             _otpService = new OtpService();
             _failedCounter = new FailedCounter();
             _slackAdapter = new SlackAdapter();
+            _nLogAdapter = new NLogAdapter();
         }
 
         public bool Verify(string accountId, string password, string otp)
@@ -136,7 +150,7 @@ namespace DependencyInjectionWorkshop.Models
                 _slackAdapter.Notify(accountId);
 
                 int failedCount = _failedCounter.GetFailedCount(accountId);
-                LogFailedCount($"accountId:{accountId} failed times:{failedCount}");
+                _nLogAdapter.LogFailedCount($"accountId:{accountId} failed times:{failedCount}");
 
                 return false;
             }
@@ -149,11 +163,6 @@ namespace DependencyInjectionWorkshop.Models
 
             isLockedResponse.EnsureSuccessStatusCode();
             return isLockedResponse.Content.ReadAsAsync<bool>().Result;
-        }
-
-        private void LogFailedCount(string message)
-        {
-            NLog.LogManager.GetCurrentClassLogger().Info(message);
         }
     }
 
