@@ -41,12 +41,8 @@ namespace DependencyInjectionWorkshop.Models
 
                 Notify(accountId);
 
-                var failedCountResponse =
-                    httpClient.PostAsJsonAsync("api/failedCounter/GetFailedCount", accountId).Result;
+                var failedCount = GetFailedCount(accountId, httpClient);
 
-                failedCountResponse.EnsureSuccessStatusCode();
-
-                var failedCount = failedCountResponse.Content.ReadAsAsync<int>().Result;
                 var logger = NLog.LogManager.GetCurrentClassLogger();
                 logger.Info($"accountId:{accountId} failed times:{failedCount}");
 
@@ -84,6 +80,17 @@ namespace DependencyInjectionWorkshop.Models
 
             var currentOtp = response.Content.ReadAsAsync<string>().Result;
             return currentOtp;
+        }
+
+        private static int GetFailedCount(string accountId, HttpClient httpClient)
+        {
+            var failedCountResponse =
+                httpClient.PostAsJsonAsync("api/failedCounter/GetFailedCount", accountId).Result;
+
+            failedCountResponse.EnsureSuccessStatusCode();
+
+            var failedCount = failedCountResponse.Content.ReadAsAsync<int>().Result;
+            return failedCount;
         }
 
         private static string GetPasswordFromDb(string accountId)
