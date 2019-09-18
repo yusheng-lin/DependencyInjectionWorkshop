@@ -58,6 +58,17 @@ namespace DependencyInjectionWorkshop.Models
             addFailedCountResponse.EnsureSuccessStatusCode();
         }
 
+        public int GetFailedCount(string accountId, HttpClient httpClient)
+        {
+            var failedCountResponse =
+                httpClient.PostAsJsonAsync("api/failedCounter/GetFailedCount", accountId).Result;
+
+            failedCountResponse.EnsureSuccessStatusCode();
+
+            var failedCount = failedCountResponse.Content.ReadAsAsync<int>().Result;
+            return failedCount;
+        }
+
         public void ResetFailedCount(string accountId)
         {
             var resetResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
@@ -137,20 +148,10 @@ namespace DependencyInjectionWorkshop.Models
             return isLockedResponse.Content.ReadAsAsync<bool>().Result;
         }
 
-        private int GetFailedCount(string accountId, HttpClient httpClient)
-        {
-            var failedCountResponse =
-                httpClient.PostAsJsonAsync("api/failedCounter/GetFailedCount", accountId).Result;
-
-            failedCountResponse.EnsureSuccessStatusCode();
-
-            var failedCount = failedCountResponse.Content.ReadAsAsync<int>().Result;
-            return failedCount;
-        }
-
         private void LogFailedCount(string accountId)
         {
-            var failedCount = GetFailedCount(accountId, new HttpClient() {BaseAddress = new Uri("http://joey.com/")});
+            var failedCount =
+                _failedCounter.GetFailedCount(accountId, new HttpClient() {BaseAddress = new Uri("http://joey.com/")});
 
             var logger = NLog.LogManager.GetCurrentClassLogger();
             logger.Info($"accountId:{accountId} failed times:{failedCount}");
