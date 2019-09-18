@@ -90,9 +90,9 @@ namespace DependencyInjectionWorkshopTests
         [Test]
         public void when_account_is_locked()
         {
-            _failedCounter.IsAccountLocked(DefaultAccountId).Returns(true);
-            TestDelegate action = () => WhenVerify(DefaultAccountId, DefaultInputPassword, DefaultOtp);
-            Assert.Throws<FailedTooManyTimesException>(action);
+            GivenAccountIsLocked(true);
+            ShouldThrow<FailedTooManyTimesException>(
+                () => WhenVerify(DefaultAccountId, DefaultInputPassword, DefaultOtp));
         }
 
         private static void ShouldBeInvalid(bool isValid)
@@ -103,6 +103,16 @@ namespace DependencyInjectionWorkshopTests
         private static void ShouldBeValid(bool isValid)
         {
             Assert.IsTrue(isValid);
+        }
+
+        private void ShouldThrow<TException>(TestDelegate action) where TException : Exception
+        {
+            Assert.Throws<TException>(action);
+        }
+
+        private void GivenAccountIsLocked(bool isLocked)
+        {
+            _failedCounter.IsAccountLocked(DefaultAccountId).Returns(isLocked);
         }
 
         private void FailedCountShouldReset(string accountId)
