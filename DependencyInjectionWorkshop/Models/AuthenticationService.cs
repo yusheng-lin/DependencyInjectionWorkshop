@@ -25,15 +25,7 @@ namespace DependencyInjectionWorkshop.Models
 
             var passwordFromDb = GetPasswordFromDb(accountId);
 
-            var crypt = new System.Security.Cryptography.SHA256Managed();
-            var hash = new StringBuilder();
-            var crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(password));
-            foreach (var theByte in crypto)
-            {
-                hash.Append(theByte.ToString("x2"));
-            }
-
-            var hashedPassword = hash.ToString();
+            var hashedPassword = ComputeHashedPassword(password);
 
             var response = httpClient.PostAsJsonAsync("api/otps", accountId).Result;
             if (!response.IsSuccessStatusCode)
@@ -70,6 +62,20 @@ namespace DependencyInjectionWorkshop.Models
 
                 return false;
             }
+        }
+
+        private static string ComputeHashedPassword(string password)
+        {
+            var crypt = new System.Security.Cryptography.SHA256Managed();
+            var hash = new StringBuilder();
+            var crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(password));
+            foreach (var theByte in crypto)
+            {
+                hash.Append(theByte.ToString("x2"));
+            }
+
+            var hashedPassword = hash.ToString();
+            return hashedPassword;
         }
 
         private static string GetPasswordFromDb(string accountId)
