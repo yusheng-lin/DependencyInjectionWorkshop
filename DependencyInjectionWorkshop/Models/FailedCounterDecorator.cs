@@ -24,6 +24,10 @@
             {
                 Reset(accountId);
             }
+            else
+            {
+                AddFailedCount(accountId);
+            }
 
             return isValid;
         }
