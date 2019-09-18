@@ -10,6 +10,11 @@
             _failedCounter = failedCounter;
         }
 
+        public void Reset(string accountId, AuthenticationService authenticationService)
+        {
+            authenticationService.FailedCounter.Reset(accountId);
+        }
+
         public override bool Verify(string accountId, string password, string otp)
         {
             CheckAccountIsLocked(accountId);

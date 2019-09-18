@@ -36,6 +36,11 @@ namespace DependencyInjectionWorkshop.Models
             _logger = new NLogAdapter();
         }
 
+        public IFailedCounter FailedCounter
+        {
+            get { return _failedCounter; }
+        }
+
         public bool Verify(string accountId, string password, string otp)
         {
             var currentPassword = _profile.GetPassword(accountId);
@@ -46,7 +51,7 @@ namespace DependencyInjectionWorkshop.Models
 
             if (currentPassword == hashedPassword && otp == currentOtp)
             {
-                Reset(accountId);
+                //_failedCounterDecorator.Reset(accountId, this);
 
                 return true;
             }
@@ -59,11 +64,6 @@ namespace DependencyInjectionWorkshop.Models
 
                 return false;
             }
-        }
-
-        private void Reset(string accountId)
-        {
-            _failedCounter.Reset(accountId);
         }
     }
 
