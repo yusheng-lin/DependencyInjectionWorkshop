@@ -1,5 +1,6 @@
 ﻿using System;
 using Castle.DynamicProxy;
+using DependencyInjectionWorkshop;
 
 namespace MyConsole
 {
@@ -34,10 +35,5 @@ namespace MyConsole
                 invocation.Proceed();
             }
         }
-    }
-
-    internal class AlarmAttribute : Attribute
-    {
-        public string RoleId { get; set; }
     }
 }

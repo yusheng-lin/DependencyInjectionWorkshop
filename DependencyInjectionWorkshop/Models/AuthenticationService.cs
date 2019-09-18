@@ -5,6 +5,7 @@ namespace DependencyInjectionWorkshop.Models
 {
     public interface IAuthentication
     {
+        [Alarm(RoleId = "911")]
         bool Verify(string accountId, string password, string otp);
     }
 
