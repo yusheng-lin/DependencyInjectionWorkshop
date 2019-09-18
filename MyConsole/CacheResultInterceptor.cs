@@ -15,20 +15,29 @@ namespace MyConsole
 
         public void Intercept(IInvocation invocation)
         {
-            string key = GetInvocationSignature(invocation);
-
-            if (_cache.Contains(key))
+            if (!(Attribute.GetCustomAttribute(invocation.Method, typeof(CacheResultAttribute)) is CacheResultAttribute
+                cacheResultAttribute))
             {
-                invocation.ReturnValue = _cache.Get(key);
-                return;
+                invocation.Proceed();
             }
-
-            invocation.Proceed();
-            var result = invocation.ReturnValue;
-
-            if (result != null)
+            else
             {
-                _cache.Put(key, result, 1000);
+                string key = GetInvocationSignature(invocation);
+
+                if (_cache.Contains(key))
+                {
+                    invocation.ReturnValue = _cache.Get(key);
+                    return;
+                }
+
+                invocation.Proceed();
+                var result = invocation.ReturnValue;
+
+                var duration = cacheResultAttribute.Duration;
+                if (result != null)
+                {
+                    _cache.Put(key, result, duration);
+                }
             }
         }
 
@@ -37,5 +46,10 @@ namespace MyConsole
             return
                 $"{invocation.TargetType.FullName}-{invocation.Method.Name}-{String.Join("-", invocation.Arguments.Select(a => (a ?? "").ToString()).ToArray())}";
         }
+    }
+
+    public class CacheResultAttribute : Attribute
+    {
+        public int Duration { get; set; }
     }
 }
