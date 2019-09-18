@@ -1,7 +1,7 @@
-﻿using System;
+﻿using SlackAPI;
+using System;
 using System.Net.Http;
 using System.Text;
-using SlackAPI;
 
 namespace DependencyInjectionWorkshop.Models
 {
@@ -70,14 +70,14 @@ namespace DependencyInjectionWorkshop.Models
 
         private static void AddFailedCount(string accountId)
         {
-            var addFailedCountResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
+            var addFailedCountResponse = new HttpClient() { BaseAddress = new Uri("http://joey.com/") }
                                          .PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
             addFailedCountResponse.EnsureSuccessStatusCode();
         }
 
         private static string GetCurrentOtp(string accountId)
         {
-            var response = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
+            var response = new HttpClient() { BaseAddress = new Uri("http://joey.com/") }
                            .PostAsJsonAsync("api/otps", accountId).Result;
             if (!response.IsSuccessStatusCode)
             {
@@ -100,7 +100,7 @@ namespace DependencyInjectionWorkshop.Models
 
         private static bool IsAccountLocked(string accountId)
         {
-            var isLockedResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
+            var isLockedResponse = new HttpClient() { BaseAddress = new Uri("http://joey.com/") }
                                    .PostAsJsonAsync("api/failedCounter/IsLocked", accountId).Result;
 
             isLockedResponse.EnsureSuccessStatusCode();
@@ -109,7 +109,7 @@ namespace DependencyInjectionWorkshop.Models
 
         private static void LogFailedCount(string accountId)
         {
-            var failedCount = GetFailedCount(accountId, new HttpClient() {BaseAddress = new Uri("http://joey.com/")});
+            var failedCount = GetFailedCount(accountId, new HttpClient() { BaseAddress = new Uri("http://joey.com/") });
 
             var logger = NLog.LogManager.GetCurrentClassLogger();
             logger.Info($"accountId:{accountId} failed times:{failedCount}");
@@ -124,7 +124,7 @@ namespace DependencyInjectionWorkshop.Models
 
         private static void ResetFailedCount(string accountId)
         {
-            var resetResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
+            var resetResponse = new HttpClient() { BaseAddress = new Uri("http://joey.com/") }
                                 .PostAsJsonAsync("api/failedCounter/Reset", accountId).Result;
             resetResponse.EnsureSuccessStatusCode();
         }
