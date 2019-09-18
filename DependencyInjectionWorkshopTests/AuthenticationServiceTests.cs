@@ -13,7 +13,7 @@ namespace DependencyInjectionWorkshopTests
         private const string DefaultOtp = "123456";
         private const string DefaultInputPassword = "abc";
         private const int DefaultFailedCount = 666;
-        private AuthenticationService _authenticationService;
+        private IAuthentication _authenticationService;
         private IFailedCounter _failedCounter;
         private IHash _hash;
         private ILogger _logger;

@@ -10,16 +10,18 @@ namespace DependencyInjectionWorkshop.Models
 
     public class NotificationDecorator
     {
-        private AuthenticationService _authenticationService;
+        private readonly INotification _notification;
+        private IAuthentication _authenticationService;
 
-        public NotificationDecorator(AuthenticationService authenticationService)
+        public NotificationDecorator(IAuthentication authenticationService, INotification notification)
         {
             _authenticationService = authenticationService;
+            _notification = notification;
         }
 
         private void Notify(string accountId)
         {
-            _authenticationService._notification.Notify(accountId);
+            _notification.Notify(accountId);
         }
     }
 
@@ -29,14 +31,14 @@ namespace DependencyInjectionWorkshop.Models
         private readonly IHash _hash;
         private readonly ILogger _logger;
         private readonly INotification _notification;
+        //private readonly NotificationDecorator _notificationDecorator;
         private readonly IOtpService _otpService;
         private readonly IProfile _profile;
-        private readonly NotificationDecorator _notificationDecorator;
 
         public AuthenticationService(IFailedCounter failedCounter, IHash hash, ILogger logger,
             INotification notification, IOtpService otpService, IProfile profile)
         {
-            _notificationDecorator = new NotificationDecorator(this);
+            //_notificationDecorator = new NotificationDecorator(this);
             _failedCounter = failedCounter;
             _hash = hash;
             _logger = logger;
@@ -47,7 +49,7 @@ namespace DependencyInjectionWorkshop.Models
 
         public AuthenticationService()
         {
-            _notificationDecorator = new NotificationDecorator(this);
+            //_notificationDecorator = new NotificationDecorator(this);
             _profile = new ProfileDao();
             _hash = new Sha256Adapter();
             _otpService = new OtpService();
@@ -79,7 +81,7 @@ namespace DependencyInjectionWorkshop.Models
             {
                 _failedCounter.Add(accountId);
 
-                _notificationDecorator.Notify(accountId);
+                //_notificationDecorator.Notify(accountId);
 
                 int failedCount = _failedCounter.Get(accountId);
                 _logger.Info($"accountId:{accountId} failed times:{failedCount}");
