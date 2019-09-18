@@ -3,9 +3,15 @@
     public class AuthenticationBaseDecorator : IAuthentication
     {
         protected IAuthentication _authentication;
-        public bool Verify(string accountId, string password, string otp)
+
+        public AuthenticationBaseDecorator(IAuthentication authentication)
         {
-            throw new System.NotImplementedException();
+            _authentication = authentication;
+        }
+
+        public virtual bool Verify(string accountId, string password, string otp)
+        {
+            return _authentication.Verify(accountId, password, otp);
         }
     }
 
@@ -13,15 +19,15 @@
     {
         private readonly INotification _notification;
 
-        public NotificationDecorator(IAuthentication authentication, INotification notification)
+        public NotificationDecorator(IAuthentication authentication, INotification notification) : base(authentication)
         {
             _authentication = authentication;
             _notification = notification;
         }
 
-        public bool Verify(string accountId, string password, string otp)
+        public override bool Verify(string accountId, string password, string otp)
         {
-            var isValid = _authentication.Verify(accountId, password, otp);
+            var isValid = base.Verify(accountId, password, otp);
             if (!isValid)
             {
                 Notify(accountId);
