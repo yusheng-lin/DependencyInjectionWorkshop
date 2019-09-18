@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extras.DynamicProxy;
+using Castle.DynamicProxy;
 using DependencyInjectionWorkshop.Models;
 
 namespace MyConsole
@@ -40,9 +41,12 @@ namespace MyConsole
 
             builder.RegisterType<AuditLogInterceptor>();
 
+            builder.RegisterType<FakeAlarm>().As<IAlarm>(); 
+            builder.RegisterType<AlarmInterceptor>();
+
             builder.RegisterType<AuthenticationService>().As<IAuthentication>()
                    .EnableInterfaceInterceptors()
-                   .InterceptedBy(typeof(AuditLogInterceptor));
+                   .InterceptedBy(typeof(AuditLogInterceptor), typeof(AlarmInterceptor));
 
             builder.RegisterType<NotificationDecorator>();
             builder.RegisterType<FailedCounterDecorator>();
@@ -56,6 +60,43 @@ namespace MyConsole
 
             _container = builder.Build();
         }
+    }
+
+    internal class FakeAlarm : IAlarm
+    {
+        public void Raise(string roleId, Exception exception)
+        {
+            Console.WriteLine($"call role:{roleId} with {exception}");
+        }
+    }
+
+    internal class AlarmInterceptor : IInterceptor
+    {
+        private readonly IAlarm _alarm;
+        private readonly string _supportId = "911";
+
+        public AlarmInterceptor(IAlarm alarm)
+        {
+            _alarm = alarm;
+        }
+
+        public void Intercept(IInvocation invocation)
+        {
+            try
+            {
+                invocation.Proceed();
+            }
+            catch (Exception e)
+            {
+                _alarm.Raise(_supportId, e);
+                throw;
+            }
+        }
+    }
+
+    internal interface IAlarm
+    {
+        void Raise(string roleId, Exception exception);
     }
 
     internal class FakeContext : IContext
@@ -109,7 +150,8 @@ namespace MyConsole
         public bool IsAccountLocked(string accountId)
         {
             Console.WriteLine($"{nameof(FakeFailedCounter)}.{nameof(IsAccountLocked)}({accountId})");
-            return false;
+            return true;
+            //return false;
         }
 
         public void Reset(string accountId)
