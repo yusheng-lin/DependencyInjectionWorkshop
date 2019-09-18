@@ -36,11 +36,6 @@ namespace DependencyInjectionWorkshop.Models
             _logger = new NLogAdapter();
         }
 
-        public IFailedCounter FailedCounter
-        {
-            get { return _failedCounter; }
-        }
-
         public bool Verify(string accountId, string password, string otp)
         {
             var currentPassword = _profile.GetPassword(accountId);
@@ -51,19 +46,22 @@ namespace DependencyInjectionWorkshop.Models
 
             if (currentPassword == hashedPassword && otp == currentOtp)
             {
-                //_failedCounterDecorator.Reset(accountId, this);
-
                 return true;
             }
             else
             {
-                _failedCounter.Add(accountId);
+                AddFailedCount(accountId);
 
                 int failedCount = _failedCounter.Get(accountId);
                 _logger.Info($"accountId:{accountId} failed times:{failedCount}");
 
                 return false;
             }
+        }
+
+        private void AddFailedCount(string accountId)
+        {
+            _failedCounter.Add(accountId);
         }
     }
 
