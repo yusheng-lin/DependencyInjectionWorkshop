@@ -27,13 +27,7 @@ namespace DependencyInjectionWorkshop.Models
 
             var hashedPassword = ComputeHashedPassword(password);
 
-            var response = httpClient.PostAsJsonAsync("api/otps", accountId).Result;
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new Exception($"web api error, accountId:{accountId}");
-            }
-
-            var currentOtp = response.Content.ReadAsAsync<string>().Result;
+            var currentOtp = GetCurrentOtp(accountId, httpClient);
 
             if (passwordFromDb == hashedPassword && otp == currentOtp)
             {
@@ -76,6 +70,18 @@ namespace DependencyInjectionWorkshop.Models
 
             var hashedPassword = hash.ToString();
             return hashedPassword;
+        }
+
+        private static string GetCurrentOtp(string accountId, HttpClient httpClient)
+        {
+            var response = httpClient.PostAsJsonAsync("api/otps", accountId).Result;
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"web api error, accountId:{accountId}");
+            }
+
+            var currentOtp = response.Content.ReadAsAsync<string>().Result;
+            return currentOtp;
         }
 
         private static string GetPasswordFromDb(string accountId)
