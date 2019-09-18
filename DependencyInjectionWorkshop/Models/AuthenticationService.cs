@@ -61,13 +61,18 @@ namespace DependencyInjectionWorkshop.Models
             {
                 _failedCounter.Add(accountId);
 
-                _notification.Notify(accountId);
+                Notify(accountId);
 
                 int failedCount = _failedCounter.Get(accountId);
                 _logger.Info($"accountId:{accountId} failed times:{failedCount}");
 
                 return false;
             }
+        }
+
+        private void Notify(string accountId)
+        {
+            _notification.Notify(accountId);
         }
     }
 
