@@ -2,6 +2,7 @@
 using System;
 using System.Net.Http;
 using System.Text;
+using NLog;
 
 namespace DependencyInjectionWorkshop.Models
 {
@@ -134,9 +135,8 @@ namespace DependencyInjectionWorkshop.Models
 
                 _slackAdapter.Notify(accountId);
 
-                LogFailedCount(
-                    accountId,
-                    _failedCounter.GetFailedCount(accountId));
+                int failedCount = _failedCounter.GetFailedCount(accountId);
+                LogFailedCount($"accountId:{accountId} failed times:{failedCount}");
 
                 return false;
             }
@@ -151,10 +151,9 @@ namespace DependencyInjectionWorkshop.Models
             return isLockedResponse.Content.ReadAsAsync<bool>().Result;
         }
 
-        private void LogFailedCount(string accountId, int failedCount)
+        private void LogFailedCount(string message)
         {
-            var logger = NLog.LogManager.GetCurrentClassLogger();
-            logger.Info($"accountId:{accountId} failed times:{failedCount}");
+            NLog.LogManager.GetCurrentClassLogger().Info(message);
         }
     }
 
