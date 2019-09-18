@@ -71,6 +71,15 @@ namespace DependencyInjectionWorkshop.Models
             return failedCount;
         }
 
+        public bool IsAccountLocked(string accountId)
+        {
+            var isLockedResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
+                                   .PostAsJsonAsync("api/failedCounter/IsLocked", accountId).Result;
+
+            isLockedResponse.EnsureSuccessStatusCode();
+            return isLockedResponse.Content.ReadAsAsync<bool>().Result;
+        }
+
         public void ResetFailedCount(string accountId)
         {
             var resetResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
@@ -126,7 +135,7 @@ namespace DependencyInjectionWorkshop.Models
 
         public bool Verify(string accountId, string password, string otp)
         {
-            if (IsAccountLocked(accountId))
+            if (_failedCounter.IsAccountLocked(accountId))
             {
                 throw new FailedTooManyTimesException();
             }
@@ -154,15 +163,6 @@ namespace DependencyInjectionWorkshop.Models
 
                 return false;
             }
-        }
-
-        private static bool IsAccountLocked(string accountId)
-        {
-            var isLockedResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
-                                   .PostAsJsonAsync("api/failedCounter/IsLocked", accountId).Result;
-
-            isLockedResponse.EnsureSuccessStatusCode();
-            return isLockedResponse.Content.ReadAsAsync<bool>().Result;
         }
     }
 
