@@ -8,7 +8,7 @@ namespace DependencyInjectionWorkshop.Models
         private readonly FailedCounter _failedCounter;
         private readonly NLogAdapter _nLogAdapter;
         private readonly OtpService _otpService;
-        private readonly ProfileDao _profileDao;
+        private readonly IProfile _profileDao;
         private readonly Sha256Adapter _sha256Adapter;
         private readonly SlackAdapter _slackAdapter;
 
