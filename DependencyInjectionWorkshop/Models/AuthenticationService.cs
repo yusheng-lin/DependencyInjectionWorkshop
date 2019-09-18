@@ -37,17 +37,17 @@ namespace DependencyInjectionWorkshop.Models
 
             if (currentPassword == hashedPassword && otp == currentOtp)
             {
-                _failedCounter.ResetFailedCount(accountId);
+                _failedCounter.Reset(accountId);
 
                 return true;
             }
             else
             {
-                _failedCounter.AddFailedCount(accountId);
+                _failedCounter.Add(accountId);
 
                 _slackAdapter.Notify(accountId);
 
-                int failedCount = _failedCounter.GetFailedCount(accountId);
+                int failedCount = _failedCounter.Get(accountId);
                 _nLogAdapter.LogFailedCount($"accountId:{accountId} failed times:{failedCount}");
 
                 return false;
