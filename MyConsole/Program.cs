@@ -10,35 +10,13 @@ namespace MyConsole
 {
     class Program
     {
-        //private static ILogger _logger;
-        //private static INotification _notification;
-        //private static IFailedCounter _failedCounter;
-        //private static IOtpService _otpService;
-        //private static IHash _hash;
-        //private static IProfile _profile;
-        //private static IAuthentication _authenticationService;
         private static IContainer _container;
 
         static void Main(string[] args)
         {
-            //_logger = new FakeLogger();
-            //_notification = new FakeSlack();
-            //_failedCounter = new FakeFailedCounter();
-            //_otpService = new FakeOtp();
-            //_hash = new FakeHash();
-            //_profile = new FakeProfile();
-
             RegisterContainer();
 
             var authentication = _container.Resolve<IAuthentication>();
-            //_authenticationService =
-            //    new AuthenticationService(_profile, _hash, _otpService);
-
-            //_authenticationService = new NotificationDecorator(_authenticationService, _notification);
-
-            //_authenticationService = new FailedCounterDecorator(_authenticationService, _failedCounter);
-
-            //_authenticationService = new LogDecorator(_authenticationService, _failedCounter, _logger);
 
             var isValid = authentication.Verify("joey", "abc", "wrong otp");
             Console.WriteLine(isValid);
