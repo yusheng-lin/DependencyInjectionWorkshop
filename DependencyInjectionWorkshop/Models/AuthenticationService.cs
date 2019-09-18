@@ -8,9 +8,30 @@ namespace DependencyInjectionWorkshop.Models
         bool Verify(string accountId, string password, string otp);
     }
 
+    public class FailedCounterDecorator
+    {
+        private readonly IFailedCounter _failedCounter;
+        private AuthenticationService _authenticationService;
+
+        public FailedCounterDecorator(AuthenticationService authenticationService, IFailedCounter failedCounter)
+        {
+            _authenticationService = authenticationService;
+            _failedCounter = failedCounter;
+        }
+
+        private void CheckAccountIsLocked(string accountId)
+        {
+            if (_failedCounter.IsAccountLocked(accountId))
+            {
+                throw new FailedTooManyTimesException();
+            }
+        }
+    }
+
     public class AuthenticationService : IAuthentication
     {
         private readonly IFailedCounter _failedCounter;
+        private readonly FailedCounterDecorator _failedCounterDecorator;
         private readonly IHash _hash;
         private readonly ILogger _logger;
         private readonly IOtpService _otpService;
@@ -19,6 +40,7 @@ namespace DependencyInjectionWorkshop.Models
         public AuthenticationService(IFailedCounter failedCounter, IHash hash, ILogger logger, IOtpService otpService,
             IProfile profile)
         {
+            //_failedCounterDecorator = new FailedCounterDecorator(this);
             _failedCounter = failedCounter;
             _hash = hash;
             _logger = logger;
@@ -28,6 +50,7 @@ namespace DependencyInjectionWorkshop.Models
 
         public AuthenticationService()
         {
+            //_failedCounterDecorator = new FailedCounterDecorator(this);
             _profile = new ProfileDao();
             _hash = new Sha256Adapter();
             _otpService = new OtpService();
@@ -37,7 +60,7 @@ namespace DependencyInjectionWorkshop.Models
 
         public bool Verify(string accountId, string password, string otp)
         {
-            CheckAccountIsLocked(accountId);
+            //_failedCounterDecorator.CheckAccountIsLocked(accountId);
 
             var currentPassword = _profile.GetPassword(accountId);
 
@@ -59,14 +82,6 @@ namespace DependencyInjectionWorkshop.Models
                 _logger.Info($"accountId:{accountId} failed times:{failedCount}");
 
                 return false;
-            }
-        }
-
-        private void CheckAccountIsLocked(string accountId)
-        {
-            if (_failedCounter.IsAccountLocked(accountId))
-            {
-                throw new FailedTooManyTimesException();
             }
         }
     }
