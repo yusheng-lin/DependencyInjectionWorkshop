@@ -45,8 +45,23 @@ namespace DependencyInjectionWorkshop.Models
         }
     }
 
+    public class FailedCounter
+    {
+        public FailedCounter()
+        {
+        }
+
+        public void ResetFailedCount(string accountId)
+        {
+            var resetResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
+                                .PostAsJsonAsync("api/failedCounter/Reset", accountId).Result;
+            resetResponse.EnsureSuccessStatusCode();
+        }
+    }
+
     public class AuthenticationService
     {
+        private readonly FailedCounter _failedCounter;
         private readonly OtpService _otpService;
         private readonly ProfileDao _profileDao;
         private readonly Sha256Adapter _sha256Adapter;
@@ -56,6 +71,7 @@ namespace DependencyInjectionWorkshop.Models
             _profileDao = new ProfileDao();
             _sha256Adapter = new Sha256Adapter();
             _otpService = new OtpService();
+            _failedCounter = new FailedCounter();
         }
 
         public bool Verify(string accountId, string password, string otp)
@@ -73,7 +89,7 @@ namespace DependencyInjectionWorkshop.Models
 
             if (passwordFromDb == hashedPassword && otp == currentOtp)
             {
-                ResetFailedCount(accountId);
+                _failedCounter.ResetFailedCount(accountId);
 
                 return true;
             }
@@ -129,13 +145,6 @@ namespace DependencyInjectionWorkshop.Models
             string message = $"{accountId} try to login failed";
             var slackClient = new SlackClient("my api token");
             slackClient.PostMessage(response1 => { }, "my channel", message, "my bot name");
-        }
-
-        private static void ResetFailedCount(string accountId)
-        {
-            var resetResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
-                                .PostAsJsonAsync("api/failedCounter/Reset", accountId).Result;
-            resetResponse.EnsureSuccessStatusCode();
         }
     }
 
