@@ -66,12 +66,27 @@ namespace DependencyInjectionWorkshop.Models
         }
     }
 
+    public class SlackAdapter
+    {
+        public SlackAdapter()
+        {
+        }
+
+        public void Notify(string accountId)
+        {
+            string message = $"{accountId} try to login failed";
+            var slackClient = new SlackClient("my api token");
+            slackClient.PostMessage(response1 => { }, "my channel", message, "my bot name");
+        }
+    }
+
     public class AuthenticationService
     {
         private readonly FailedCounter _failedCounter;
         private readonly OtpService _otpService;
         private readonly ProfileDao _profileDao;
         private readonly Sha256Adapter _sha256Adapter;
+        private readonly SlackAdapter _slackAdapter;
 
         public AuthenticationService()
         {
@@ -79,6 +94,7 @@ namespace DependencyInjectionWorkshop.Models
             _sha256Adapter = new Sha256Adapter();
             _otpService = new OtpService();
             _failedCounter = new FailedCounter();
+            _slackAdapter = new SlackAdapter();
         }
 
         public bool Verify(string accountId, string password, string otp)
@@ -104,7 +120,7 @@ namespace DependencyInjectionWorkshop.Models
             {
                 _failedCounter.AddFailedCount(accountId);
 
-                Notify(accountId);
+                _slackAdapter.Notify(accountId);
 
                 LogFailedCount(accountId);
 
@@ -138,13 +154,6 @@ namespace DependencyInjectionWorkshop.Models
 
             var logger = NLog.LogManager.GetCurrentClassLogger();
             logger.Info($"accountId:{accountId} failed times:{failedCount}");
-        }
-
-        private static void Notify(string accountId)
-        {
-            string message = $"{accountId} try to login failed";
-            var slackClient = new SlackClient("my api token");
-            slackClient.PostMessage(response1 => { }, "my channel", message, "my bot name");
         }
     }
 
