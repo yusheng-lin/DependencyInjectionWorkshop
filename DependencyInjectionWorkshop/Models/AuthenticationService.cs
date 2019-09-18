@@ -39,9 +39,7 @@ namespace DependencyInjectionWorkshop.Models
             {
                 AddFailedCount(accountId, httpClient);
 
-                string message = $"{accountId} try to login failed";
-                var slackClient = new SlackClient("my api token");
-                slackClient.PostMessage(response1 => { }, "my channel", message, "my bot name");
+                Notify(accountId);
 
                 var failedCountResponse =
                     httpClient.PostAsJsonAsync("api/failedCounter/GetFailedCount", accountId).Result;
@@ -98,6 +96,13 @@ namespace DependencyInjectionWorkshop.Models
             }
 
             return passwordFromDb;
+        }
+
+        private static void Notify(string accountId)
+        {
+            string message = $"{accountId} try to login failed";
+            var slackClient = new SlackClient("my api token");
+            slackClient.PostMessage(response1 => { }, "my channel", message, "my bot name");
         }
 
         private static void ResetFailedCount(string accountId, HttpClient httpClient)
