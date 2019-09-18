@@ -7,7 +7,7 @@ namespace DependencyInjectionWorkshop.Models
     {
         private readonly IFailedCounter _failedCounter;
         private readonly IHash _hash;
-        private readonly NLogAdapter _nLogAdapter;
+        private readonly ILogger _logger;
         private readonly INotification _notification;
         private readonly IOtpService _otpService;
         private readonly IProfile _profile;
@@ -19,7 +19,7 @@ namespace DependencyInjectionWorkshop.Models
             _otpService = new OtpService();
             _failedCounter = new FailedCounter();
             _notification = new SlackAdapter();
-            _nLogAdapter = new NLogAdapter();
+            _logger = new NLogAdapter();
         }
 
         public bool Verify(string accountId, string password, string otp)
@@ -48,7 +48,7 @@ namespace DependencyInjectionWorkshop.Models
                 _notification.Notify(accountId);
 
                 int failedCount = _failedCounter.Get(accountId);
-                _nLogAdapter.Info($"accountId:{accountId} failed times:{failedCount}");
+                _logger.Info($"accountId:{accountId} failed times:{failedCount}");
 
                 return false;
             }
