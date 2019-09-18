@@ -53,7 +53,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AlarmInterceptor.cs" />
     <Compile Include="AuditLogInterceptor.cs" />
+    <Compile Include="IAlarm.cs" />
     <Compile Include="IContext.cs" />
     <Compile Include="LogMethodInfoDecorator.cs" />
     <Compile Include="Program.cs" />
