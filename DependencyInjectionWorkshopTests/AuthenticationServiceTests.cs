@@ -68,6 +68,16 @@ namespace DependencyInjectionWorkshopTests
             ShouldAddFailedCount(DefaultAccountId);
         }
 
+        [Test]
+        public void log_failed_count_when_invalid()
+        {
+            _failedCounter.Get(DefaultAccountId).Returns(666);
+
+            WhenInvalid();
+
+            _logger.Received(1).Info(Arg.Is<string>(m => m.Contains("666") && m.Contains(DefaultAccountId)));
+        }
+
         private static void ShouldBeInvalid(bool isValid)
         {
             Assert.IsFalse(isValid);
