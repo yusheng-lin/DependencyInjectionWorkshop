@@ -133,7 +133,10 @@ namespace DependencyInjectionWorkshop.Models
 
                 _slackAdapter.Notify(accountId);
 
-                LogFailedCount(accountId);
+                LogFailedCount(
+                    accountId,
+                    _failedCounter.GetFailedCount(
+                        accountId, new HttpClient() {BaseAddress = new Uri("http://joey.com/")}));
 
                 return false;
             }
@@ -148,11 +151,8 @@ namespace DependencyInjectionWorkshop.Models
             return isLockedResponse.Content.ReadAsAsync<bool>().Result;
         }
 
-        private void LogFailedCount(string accountId)
+        private void LogFailedCount(string accountId, int failedCount)
         {
-            var failedCount =
-                _failedCounter.GetFailedCount(accountId, new HttpClient() {BaseAddress = new Uri("http://joey.com/")});
-
             var logger = NLog.LogManager.GetCurrentClassLogger();
             logger.Info($"accountId:{accountId} failed times:{failedCount}");
         }
