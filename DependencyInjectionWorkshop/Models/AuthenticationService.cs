@@ -48,7 +48,7 @@ namespace DependencyInjectionWorkshop.Models
                 _notification.Notify(accountId);
 
                 int failedCount = _failedCounter.Get(accountId);
-                _nLogAdapter.LogFailedCount($"accountId:{accountId} failed times:{failedCount}");
+                _nLogAdapter.Info($"accountId:{accountId} failed times:{failedCount}");
 
                 return false;
             }

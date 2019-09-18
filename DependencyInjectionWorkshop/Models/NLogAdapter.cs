@@ -2,7 +2,7 @@
 {
     public interface ILogger
     {
-        void LogFailedCount(string message);
+        void Info(string message);
     }
 
     public class NLogAdapter : ILogger
@@ -11,7 +11,7 @@
         {
         }
 
-        public void LogFailedCount(string message)
+        public void Info(string message)
         {
             NLog.LogManager.GetCurrentClassLogger().Info(message);
         }
