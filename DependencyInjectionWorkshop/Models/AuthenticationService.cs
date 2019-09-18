@@ -32,7 +32,7 @@ namespace DependencyInjectionWorkshop.Models
             }
             else
             {
-                AddFailedCount(accountId, new HttpClient() {BaseAddress = new Uri("http://joey.com/")});
+                AddFailedCount(accountId);
 
                 Notify(accountId);
 
@@ -42,9 +42,10 @@ namespace DependencyInjectionWorkshop.Models
             }
         }
 
-        private static void AddFailedCount(string accountId, HttpClient httpClient)
+        private static void AddFailedCount(string accountId)
         {
-            var addFailedCountResponse = httpClient.PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
+            var addFailedCountResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
+                                         .PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
             addFailedCountResponse.EnsureSuccessStatusCode();
         }
 
