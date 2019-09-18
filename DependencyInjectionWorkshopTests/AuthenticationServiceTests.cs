@@ -79,6 +79,11 @@ namespace DependencyInjectionWorkshopTests
             LogShouldContains(DefaultAccountId, DefaultFailedCount);
         }
 
+        [Test]
+        public void reset_failed_count_when_valid()
+        {
+        }
+
         private static void ShouldBeInvalid(bool isValid)
         {
             Assert.IsFalse(isValid);
@@ -87,6 +92,16 @@ namespace DependencyInjectionWorkshopTests
         private static void ShouldBeValid(bool isValid)
         {
             Assert.IsTrue(isValid);
+        }
+
+        private bool WhenValid()
+        {
+            GivenPassword(DefaultAccountId, DefaultHashedPassword);
+            GivenHash(DefaultInputPassword, DefaultHashedPassword);
+            GivenOtp(DefaultAccountId, DefaultOtp);
+
+            var isValid = WhenVerify(DefaultAccountId, DefaultInputPassword, DefaultOtp);
+            return isValid;
         }
 
         private void LogShouldContains(string accountId, int failedCount)
