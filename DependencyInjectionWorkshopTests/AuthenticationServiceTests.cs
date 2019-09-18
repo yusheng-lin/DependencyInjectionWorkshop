@@ -35,12 +35,17 @@ namespace DependencyInjectionWorkshopTests
         [Test]
         public void is_valid()
         {
-            _profile.GetPassword(DefaultAccountId).Returns(DefaultHashedPassword);
+            GivenPassword();
             _hash.Compute(DefaultInputPassword).Returns(DefaultHashedPassword);
             _otpService.GetCurrentOtp(DefaultAccountId).Returns(DefaultOtp);
 
             var isValid = _authenticationService.Verify(DefaultAccountId, DefaultInputPassword, DefaultOtp);
             Assert.IsTrue(isValid);
+        }
+
+        private void GivenPassword()
+        {
+            _profile.GetPassword(DefaultAccountId).Returns(DefaultHashedPassword);
         }
     }
 }
