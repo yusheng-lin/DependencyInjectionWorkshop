@@ -82,6 +82,8 @@ namespace DependencyInjectionWorkshopTests
         [Test]
         public void reset_failed_count_when_valid()
         {
+            WhenValid();
+            _failedCounter.Received(1).Reset(DefaultAccountId);
         }
 
         private static void ShouldBeInvalid(bool isValid)
