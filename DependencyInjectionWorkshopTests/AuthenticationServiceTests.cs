@@ -39,8 +39,13 @@ namespace DependencyInjectionWorkshopTests
             GivenHash(DefaultInputPassword, DefaultHashedPassword);
             GivenOtp(DefaultAccountId, DefaultOtp);
 
-            var isValid = _authenticationService.Verify(DefaultAccountId, DefaultInputPassword, DefaultOtp);
+            var isValid = WhenVerify(DefaultAccountId, DefaultInputPassword, DefaultOtp);
             Assert.IsTrue(isValid);
+        }
+
+        private bool WhenVerify(string accountId, string inputPassword, string otp)
+        {
+            return _authenticationService.Verify(accountId, inputPassword, otp);
         }
 
         private void GivenOtp(string accountId, string otp)
