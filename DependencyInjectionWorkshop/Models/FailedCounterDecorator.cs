@@ -10,9 +10,9 @@
             _failedCounter = failedCounter;
         }
 
-        public void Reset(string accountId, AuthenticationService authenticationService)
+        public void Reset(string accountId)
         {
-            authenticationService.FailedCounter.Reset(accountId);
+            _failedCounter.Reset(accountId);
         }
 
         public override bool Verify(string accountId, string password, string otp)
