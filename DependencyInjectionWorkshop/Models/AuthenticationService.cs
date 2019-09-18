@@ -13,9 +13,7 @@ namespace DependencyInjectionWorkshop.Models
     {
         public bool Verify(string accountId, string password, string otp)
         {
-            var httpClient = new HttpClient() {BaseAddress = new Uri("http://joey.com/")};
-
-            if (IsAccountLocked(accountId, httpClient))
+            if (IsAccountLocked(accountId, new HttpClient() {BaseAddress = new Uri("http://joey.com/")}))
             {
                 throw new FailedTooManyTimesException();
             }
@@ -24,21 +22,21 @@ namespace DependencyInjectionWorkshop.Models
 
             var hashedPassword = ComputeHashedPassword(password);
 
-            var currentOtp = GetCurrentOtp(accountId, httpClient);
+            var currentOtp = GetCurrentOtp(accountId, new HttpClient() {BaseAddress = new Uri("http://joey.com/")});
 
             if (passwordFromDb == hashedPassword && otp == currentOtp)
             {
-                ResetFailedCount(accountId, httpClient);
+                ResetFailedCount(accountId, new HttpClient() {BaseAddress = new Uri("http://joey.com/")});
 
                 return true;
             }
             else
             {
-                AddFailedCount(accountId, httpClient);
+                AddFailedCount(accountId, new HttpClient() {BaseAddress = new Uri("http://joey.com/")});
 
                 Notify(accountId);
 
-                LogFailedCount(accountId, httpClient);
+                LogFailedCount(accountId, new HttpClient() {BaseAddress = new Uri("http://joey.com/")});
 
                 return false;
             }
