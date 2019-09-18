@@ -8,31 +8,6 @@ namespace DependencyInjectionWorkshop.Models
         bool Verify(string accountId, string password, string otp);
     }
 
-    public class FailedCounterDecorator : AuthenticationBaseDecorator
-    {
-        private readonly IFailedCounter _failedCounter;
-
-        public FailedCounterDecorator(IAuthentication authenticationService, IFailedCounter failedCounter) : base(
-            authenticationService)
-        {
-            _failedCounter = failedCounter;
-        }
-
-        public override bool Verify(string accountId, string password, string otp)
-        {
-            CheckAccountIsLocked(accountId);
-            return base.Verify(accountId, password, otp);
-        }
-
-        private void CheckAccountIsLocked(string accountId)
-        {
-            if (_failedCounter.IsAccountLocked(accountId))
-            {
-                throw new FailedTooManyTimesException();
-            }
-        }
-    }
-
     public class AuthenticationService : IAuthentication
     {
         private readonly IFailedCounter _failedCounter;
@@ -45,7 +20,6 @@ namespace DependencyInjectionWorkshop.Models
         public AuthenticationService(IFailedCounter failedCounter, IHash hash, ILogger logger, IOtpService otpService,
             IProfile profile)
         {
-            //_failedCounterDecorator = new FailedCounterDecorator(this);
             _failedCounter = failedCounter;
             _hash = hash;
             _logger = logger;
@@ -55,7 +29,6 @@ namespace DependencyInjectionWorkshop.Models
 
         public AuthenticationService()
         {
-            //_failedCounterDecorator = new FailedCounterDecorator(this);
             _profile = new ProfileDao();
             _hash = new Sha256Adapter();
             _otpService = new OtpService();
@@ -65,8 +38,6 @@ namespace DependencyInjectionWorkshop.Models
 
         public bool Verify(string accountId, string password, string otp)
         {
-            //_failedCounterDecorator.CheckAccountIsLocked(accountId);
-
             var currentPassword = _profile.GetPassword(accountId);
 
             var hashedPassword = _hash.Compute(password);
