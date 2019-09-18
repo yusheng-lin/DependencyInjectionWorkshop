@@ -86,7 +86,7 @@ namespace DependencyInjectionWorkshop.Models
             return failedCount;
         }
 
-        private static string GetPasswordFromDb(string accountId)
+        private string GetPasswordFromDb(string accountId)
         {
             string passwordFromDb;
             using (var connection = new SqlConnection("my connection string"))
