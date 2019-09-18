@@ -7,6 +7,13 @@ namespace DependencyInjectionWorkshop.Models
 {
     public class AuthenticationService
     {
+        private readonly ProfileDao _profileDao;
+
+        public AuthenticationService()
+        {
+            _profileDao = new ProfileDao();
+        }
+
         public bool Verify(string accountId, string password, string otp)
         {
             if (IsAccountLocked(accountId))
@@ -14,7 +21,7 @@ namespace DependencyInjectionWorkshop.Models
                 throw new FailedTooManyTimesException();
             }
 
-            var passwordFromDb = new ProfileDao().GetPasswordFromDb(accountId);
+            var passwordFromDb = _profileDao.GetPasswordFromDb(accountId);
 
             var hashedPassword = ComputeHashedPassword(password);
 
