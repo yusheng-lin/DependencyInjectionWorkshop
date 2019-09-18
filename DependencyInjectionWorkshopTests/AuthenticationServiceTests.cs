@@ -32,7 +32,7 @@ namespace DependencyInjectionWorkshopTests
             _profile = Substitute.For<IProfile>();
 
             _authenticationService =
-                new AuthenticationService(_hash, _otpService, _profile);
+                new AuthenticationService(_profile, _hash, _otpService);
 
             _authenticationService = new NotificationDecorator(_authenticationService, _notification);
 

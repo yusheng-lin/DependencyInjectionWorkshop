@@ -14,7 +14,7 @@ namespace DependencyInjectionWorkshop.Models
         private readonly IOtpService _otpService;
         private readonly IProfile _profile;
 
-        public AuthenticationService(IHash hash, IOtpService otpService, IProfile profile)
+        public AuthenticationService(IProfile profile, IHash hash, IOtpService otpService)
         {
             _hash = hash;
             _otpService = otpService;
