@@ -8,15 +8,20 @@ namespace DependencyInjectionWorkshop.Models
         bool Verify(string accountId, string password, string otp);
     }
 
-    public class FailedCounterDecorator
+    public class FailedCounterDecorator : AuthenticationBaseDecorator
     {
         private readonly IFailedCounter _failedCounter;
-        private AuthenticationService _authenticationService;
 
-        public FailedCounterDecorator(AuthenticationService authenticationService, IFailedCounter failedCounter)
+        public FailedCounterDecorator(IAuthentication authenticationService, IFailedCounter failedCounter) : base(
+            authenticationService)
         {
-            _authenticationService = authenticationService;
             _failedCounter = failedCounter;
+        }
+
+        public override bool Verify(string accountId, string password, string otp)
+        {
+            CheckAccountIsLocked(accountId);
+            return base.Verify(accountId, password, otp);
         }
 
         private void CheckAccountIsLocked(string accountId)
