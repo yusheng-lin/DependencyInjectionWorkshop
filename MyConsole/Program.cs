@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
+using Autofac.Extras.DynamicProxy;
+using Castle.DynamicProxy;
 using DependencyInjectionWorkshop.Models;
 
 namespace MyConsole
@@ -33,19 +35,46 @@ namespace MyConsole
             builder.RegisterType<FakeSlack>().As<INotification>();
             builder.RegisterType<FakeLogger>().As<ILogger>();
 
-            builder.RegisterType<AuthenticationService>().As<IAuthentication>();
+            builder.RegisterType<LogMethodInfoInterceptor>();
+
+            builder.RegisterType<AuthenticationService>().As<IAuthentication>()
+                   .EnableInterfaceInterceptors()
+                   .InterceptedBy(typeof(LogMethodInfoInterceptor));
 
             builder.RegisterType<NotificationDecorator>();
             builder.RegisterType<FailedCounterDecorator>();
             builder.RegisterType<LogDecorator>();
-            builder.RegisterType<LogMethodInfoDecorator>();
+            //builder.RegisterType<LogMethodInfoDecorator>();
+
 
             builder.RegisterDecorator<NotificationDecorator, IAuthentication>();
             builder.RegisterDecorator<FailedCounterDecorator, IAuthentication>();
             builder.RegisterDecorator<LogDecorator, IAuthentication>();
-            builder.RegisterDecorator<LogMethodInfoDecorator, IAuthentication>();
+            //builder.RegisterDecorator<LogMethodInfoDecorator, IAuthentication>();
 
             _container = builder.Build();
+        }
+    }
+
+    internal class LogMethodInfoInterceptor : IInterceptor
+    {
+        private readonly ILogger _logger;
+
+        public LogMethodInfoInterceptor(ILogger logger)
+        {
+            _logger = logger;
+        }
+
+        public void Intercept(IInvocation invocation)
+        {
+            var message = $"{invocation.TargetType.FullName}.{invocation.Method.Name}:" +
+                $"{string.Join("|", invocation.Arguments.Select(x => (x ?? "").ToString()))}";
+
+            _logger.Info(message);
+
+            invocation.Proceed();
+
+            _logger.Info($"result value is {invocation.ReturnValue}");
         }
     }
 
