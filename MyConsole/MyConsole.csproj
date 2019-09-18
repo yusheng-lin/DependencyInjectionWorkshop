@@ -56,9 +56,12 @@
   <ItemGroup>
     <Compile Include="AlarmInterceptor.cs" />
     <Compile Include="AuditLogInterceptor.cs" />
+    <Compile Include="CacheResultInterceptor.cs" />
     <Compile Include="IAlarm.cs" />
+    <Compile Include="ICacheProvider.cs" />
     <Compile Include="IContext.cs" />
     <Compile Include="LogMethodInfoDecorator.cs" />
+    <Compile Include="MemoryCacheProvider.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
