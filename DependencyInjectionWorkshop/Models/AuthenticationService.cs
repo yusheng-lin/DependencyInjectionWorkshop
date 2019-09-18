@@ -5,7 +5,7 @@ namespace DependencyInjectionWorkshop.Models
 {
     public class AuthenticationService
     {
-        private readonly FailedCounter _failedCounter;
+        private readonly IFailedCounter _failedCounter;
         private readonly IHash _hash;
         private readonly NLogAdapter _nLogAdapter;
         private readonly IOtpService _otpService;
