@@ -20,6 +20,10 @@ namespace DependencyInjectionWorkshopTests
             var authenticationService =
                 new AuthenticationService(failedCounter, hash, logger, notification, otpService, profile);
 
+            profile.GetPassword("joey").Returns("my hashed password");
+            hash.Compute("abc").Returns("my hashed password");
+            otpService.GetCurrentOtp("joey").Returns("123456");
+
             var isValid = authenticationService.Verify("joey", "abc", "123456");
             Assert.IsTrue(isValid);
         }
