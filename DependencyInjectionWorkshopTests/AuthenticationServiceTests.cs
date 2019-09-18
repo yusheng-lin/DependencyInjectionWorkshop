@@ -61,6 +61,13 @@ namespace DependencyInjectionWorkshopTests
             ShouldNotifyUser(DefaultAccountId);
         }
 
+        [Test]
+        public void add_failed_count_when_invalid()
+        {
+            WhenInvalid();
+            _failedCounter.Received(1).Add(DefaultAccountId);
+        }
+
         private static void ShouldBeInvalid(bool isValid)
         {
             Assert.IsFalse(isValid);
