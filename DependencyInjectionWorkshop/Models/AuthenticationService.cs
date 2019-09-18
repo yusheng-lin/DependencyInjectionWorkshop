@@ -37,8 +37,7 @@ namespace DependencyInjectionWorkshop.Models
             }
             else
             {
-                var addFailedCountResponse = httpClient.PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
-                addFailedCountResponse.EnsureSuccessStatusCode();
+                AddFailedCount(accountId, httpClient);
 
                 string message = $"{accountId} try to login failed";
                 var slackClient = new SlackClient("my api token");
@@ -55,6 +54,12 @@ namespace DependencyInjectionWorkshop.Models
 
                 return false;
             }
+        }
+
+        private static void AddFailedCount(string accountId, HttpClient httpClient)
+        {
+            var addFailedCountResponse = httpClient.PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
+            addFailedCountResponse.EnsureSuccessStatusCode();
         }
 
         private static string ComputeHashedPassword(string password)
