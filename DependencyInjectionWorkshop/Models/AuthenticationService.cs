@@ -10,18 +10,14 @@ namespace DependencyInjectionWorkshop.Models
     {
         public bool Verify(string accountId, string password, string otp)
         {
-            throw new NotImplementedException();
-        }
-
-        public string GetPassword(string accountId)
-        {
+            string passwordFromDb;
             using (var connection = new SqlConnection("my connection string"))
             {
-                var password = connection.Query<string>("spGetUserPassword", new { Id = accountId },
-                                                        commandType: CommandType.StoredProcedure).SingleOrDefault();
-
-                return password;
+                passwordFromDb = connection.Query<string>("spGetUserPassword", new {Id = accountId},
+                                                          commandType: CommandType.StoredProcedure).SingleOrDefault();
             }
+
+            throw new NotImplementedException();
         }
     }
 }
