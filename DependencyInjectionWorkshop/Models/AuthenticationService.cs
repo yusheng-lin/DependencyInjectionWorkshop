@@ -26,8 +26,28 @@ namespace DependencyInjectionWorkshop.Models
         }
     }
 
+    public class OtpService
+    {
+        public OtpService()
+        {
+        }
+
+        public string GetCurrentOtp(string accountId)
+        {
+            var response = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
+                           .PostAsJsonAsync("api/otps", accountId).Result;
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"web api error, accountId:{accountId}");
+            }
+
+            return response.Content.ReadAsAsync<string>().Result;
+        }
+    }
+
     public class AuthenticationService
     {
+        private readonly OtpService _otpService;
         private readonly ProfileDao _profileDao;
         private readonly Sha256Adapter _sha256Adapter;
 
@@ -35,6 +55,7 @@ namespace DependencyInjectionWorkshop.Models
         {
             _profileDao = new ProfileDao();
             _sha256Adapter = new Sha256Adapter();
+            _otpService = new OtpService();
         }
 
         public bool Verify(string accountId, string password, string otp)
@@ -48,7 +69,7 @@ namespace DependencyInjectionWorkshop.Models
 
             var hashedPassword = _sha256Adapter.ComputeHashedPassword(password);
 
-            var currentOtp = GetCurrentOtp(accountId);
+            var currentOtp = _otpService.GetCurrentOtp(accountId);
 
             if (passwordFromDb == hashedPassword && otp == currentOtp)
             {
@@ -70,21 +91,9 @@ namespace DependencyInjectionWorkshop.Models
 
         private static void AddFailedCount(string accountId)
         {
-            var addFailedCountResponse = new HttpClient() { BaseAddress = new Uri("http://joey.com/") }
+            var addFailedCountResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
                                          .PostAsJsonAsync("api/failedCounter/Add", accountId).Result;
             addFailedCountResponse.EnsureSuccessStatusCode();
-        }
-
-        private static string GetCurrentOtp(string accountId)
-        {
-            var response = new HttpClient() { BaseAddress = new Uri("http://joey.com/") }
-                           .PostAsJsonAsync("api/otps", accountId).Result;
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new Exception($"web api error, accountId:{accountId}");
-            }
-
-            return response.Content.ReadAsAsync<string>().Result;
         }
 
         private static int GetFailedCount(string accountId, HttpClient httpClient)
@@ -100,7 +109,7 @@ namespace DependencyInjectionWorkshop.Models
 
         private static bool IsAccountLocked(string accountId)
         {
-            var isLockedResponse = new HttpClient() { BaseAddress = new Uri("http://joey.com/") }
+            var isLockedResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
                                    .PostAsJsonAsync("api/failedCounter/IsLocked", accountId).Result;
 
             isLockedResponse.EnsureSuccessStatusCode();
@@ -109,7 +118,7 @@ namespace DependencyInjectionWorkshop.Models
 
         private static void LogFailedCount(string accountId)
         {
-            var failedCount = GetFailedCount(accountId, new HttpClient() { BaseAddress = new Uri("http://joey.com/") });
+            var failedCount = GetFailedCount(accountId, new HttpClient() {BaseAddress = new Uri("http://joey.com/")});
 
             var logger = NLog.LogManager.GetCurrentClassLogger();
             logger.Info($"accountId:{accountId} failed times:{failedCount}");
@@ -124,7 +133,7 @@ namespace DependencyInjectionWorkshop.Models
 
         private static void ResetFailedCount(string accountId)
         {
-            var resetResponse = new HttpClient() { BaseAddress = new Uri("http://joey.com/") }
+            var resetResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
                                 .PostAsJsonAsync("api/failedCounter/Reset", accountId).Result;
             resetResponse.EnsureSuccessStatusCode();
         }
