@@ -29,8 +29,8 @@ namespace MyConsole
             var builder = new ContainerBuilder();
 
             builder.RegisterType<FakeProfile>().As<IProfile>()
-                   .EnableInterfaceInterceptors()
-                   .InterceptedBy(typeof(LogMethodInfoInterceptor));
+                   .EnableInterfaceInterceptors();
+            //.InterceptedBy(typeof(LogMethodInfoInterceptor));
 
             builder.RegisterType<FakeHash>().As<IHash>();
             builder.RegisterType<FakeOtp>().As<IOtpService>();
@@ -38,17 +38,16 @@ namespace MyConsole
             builder.RegisterType<FakeSlack>().As<INotification>();
             builder.RegisterType<FakeLogger>().As<ILogger>();
 
-            builder.RegisterType<LogMethodInfoInterceptor>();
+            builder.RegisterType<AuditLogInterceptor>();
 
             builder.RegisterType<AuthenticationService>().As<IAuthentication>()
                    .EnableInterfaceInterceptors()
-                   .InterceptedBy(typeof(LogMethodInfoInterceptor));
+                   .InterceptedBy(typeof(AuditLogInterceptor));
 
             builder.RegisterType<NotificationDecorator>();
             builder.RegisterType<FailedCounterDecorator>();
             builder.RegisterType<LogDecorator>();
             //builder.RegisterType<LogMethodInfoDecorator>();
-
 
             builder.RegisterDecorator<NotificationDecorator, IAuthentication>();
             builder.RegisterDecorator<FailedCounterDecorator, IAuthentication>();
@@ -59,11 +58,11 @@ namespace MyConsole
         }
     }
 
-    internal class LogMethodInfoInterceptor : IInterceptor
+    internal class AuditLogInterceptor : IInterceptor
     {
         private readonly ILogger _logger;
 
-        public LogMethodInfoInterceptor(ILogger logger)
+        public AuditLogInterceptor(ILogger logger)
         {
             _logger = logger;
         }
