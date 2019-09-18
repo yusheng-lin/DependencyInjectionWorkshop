@@ -46,7 +46,7 @@ namespace DependencyInjectionWorkshop.Models
 
             if (currentPassword == hashedPassword && otp == currentOtp)
             {
-                _failedCounter.Reset(accountId);
+                Reset(accountId);
 
                 return true;
             }
@@ -59,6 +59,11 @@ namespace DependencyInjectionWorkshop.Models
 
                 return false;
             }
+        }
+
+        private void Reset(string accountId)
+        {
+            _failedCounter.Reset(accountId);
         }
     }
 
