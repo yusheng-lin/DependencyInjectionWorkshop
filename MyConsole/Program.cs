@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,6 +38,8 @@ namespace MyConsole
             builder.RegisterType<FakeFailedCounter>().As<IFailedCounter>();
             builder.RegisterType<FakeSlack>().As<INotification>();
             builder.RegisterType<FakeLogger>().As<ILogger>();
+            builder.RegisterType<FakeContext>().As<IContext>();
+
 
             builder.RegisterType<AuditLogInterceptor>();
 
@@ -58,18 +61,29 @@ namespace MyConsole
         }
     }
 
+    internal class FakeContext:IContext
+    {
+        public string GetCurrentUser()
+        {
+            return "JoeyChen9191";
+        }
+    }
+
     internal class AuditLogInterceptor : IInterceptor
     {
         private readonly ILogger _logger;
+        private readonly IContext _context;
 
-        public AuditLogInterceptor(ILogger logger)
+        public AuditLogInterceptor(ILogger logger, IContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
         public void Intercept(IInvocation invocation)
         {
-            var message = $"{invocation.TargetType.FullName}.{invocation.Method.Name}:" +
+            string currentUser = _context.GetCurrentUser();
+            var message = $"{currentUser} invoke method - {invocation.TargetType.FullName}.{invocation.Method.Name}:" +
                 $"{string.Join("|", invocation.Arguments.Select(x => (x ?? "").ToString()))}";
 
             _logger.Info(message);
@@ -78,6 +92,11 @@ namespace MyConsole
 
             _logger.Info($"result value is {invocation.ReturnValue}");
         }
+    }
+
+    internal interface IContext
+    {
+        string GetCurrentUser();
     }
 
     internal class LogMethodInfoDecorator : AuthenticationBaseDecorator
