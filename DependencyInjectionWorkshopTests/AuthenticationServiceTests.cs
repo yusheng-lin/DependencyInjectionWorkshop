@@ -83,7 +83,7 @@ namespace DependencyInjectionWorkshopTests
         public void reset_failed_count_when_valid()
         {
             WhenValid();
-            _failedCounter.Received(1).Reset(DefaultAccountId);
+            FailedCountShouldReset(DefaultAccountId);
         }
 
         private static void ShouldBeInvalid(bool isValid)
@@ -94,6 +94,11 @@ namespace DependencyInjectionWorkshopTests
         private static void ShouldBeValid(bool isValid)
         {
             Assert.IsTrue(isValid);
+        }
+
+        private void FailedCountShouldReset(string accountId)
+        {
+            _failedCounter.Received(1).Reset(accountId);
         }
 
         private bool WhenValid()
