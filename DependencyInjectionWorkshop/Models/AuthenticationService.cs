@@ -6,16 +6,16 @@ namespace DependencyInjectionWorkshop.Models
     public class AuthenticationService
     {
         private readonly FailedCounter _failedCounter;
+        private readonly IHash _hash;
         private readonly NLogAdapter _nLogAdapter;
         private readonly OtpService _otpService;
         private readonly IProfile _profile;
-        private readonly Sha256Adapter _sha256Adapter;
         private readonly SlackAdapter _slackAdapter;
 
         public AuthenticationService()
         {
             _profile = new ProfileDao();
-            _sha256Adapter = new Sha256Adapter();
+            _hash = new Sha256Adapter();
             _otpService = new OtpService();
             _failedCounter = new FailedCounter();
             _slackAdapter = new SlackAdapter();
@@ -31,7 +31,7 @@ namespace DependencyInjectionWorkshop.Models
 
             var currentPassword = _profile.GetPassword(accountId);
 
-            var hashedPassword = _sha256Adapter.Compute(password);
+            var hashedPassword = _hash.Compute(password);
 
             var currentOtp = _otpService.GetCurrentOtp(accountId);
 
