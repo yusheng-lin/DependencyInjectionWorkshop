@@ -29,7 +29,7 @@ namespace DependencyInjectionWorkshop.Models
 
             var hashedPassword = hash.ToString();
 
-            var httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com/") };
+            var httpClient = new HttpClient() {BaseAddress = new Uri("http://joey.com/")};
             var response = httpClient.PostAsJsonAsync("api/otps", accountId).Result;
             if (response.IsSuccessStatusCode)
             {
@@ -41,7 +41,14 @@ namespace DependencyInjectionWorkshop.Models
 
             var currentOtp = response.Content.ReadAsAsync<string>().Result;
 
-            throw new NotImplementedException();
+            if (passwordFromDb == hashedPassword && otp == currentOtp)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
