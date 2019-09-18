@@ -36,7 +36,7 @@ namespace DependencyInjectionWorkshop.Models
 
                 Notify(accountId);
 
-                LogFailedCount(accountId, new HttpClient() {BaseAddress = new Uri("http://joey.com/")});
+                LogFailedCount(accountId);
 
                 return false;
             }
@@ -107,9 +107,9 @@ namespace DependencyInjectionWorkshop.Models
             return isLockedResponse.Content.ReadAsAsync<bool>().Result;
         }
 
-        private static void LogFailedCount(string accountId, HttpClient httpClient)
+        private static void LogFailedCount(string accountId)
         {
-            var failedCount = GetFailedCount(accountId, httpClient);
+            var failedCount = GetFailedCount(accountId, new HttpClient() {BaseAddress = new Uri("http://joey.com/")});
 
             var logger = NLog.LogManager.GetCurrentClassLogger();
             logger.Info($"accountId:{accountId} failed times:{failedCount}");
