@@ -2,7 +2,7 @@
 {
     public class AuthenticationBaseDecorator : IAuthentication
     {
-        protected IAuthentication _authentication;
+        private readonly IAuthentication _authentication;
 
         public AuthenticationBaseDecorator(IAuthentication authentication)
         {
@@ -21,7 +21,6 @@
 
         public NotificationDecorator(IAuthentication authentication, INotification notification) : base(authentication)
         {
-            _authentication = authentication;
             _notification = notification;
         }
 
