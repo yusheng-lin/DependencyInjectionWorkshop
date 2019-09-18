@@ -8,6 +8,7 @@ namespace DependencyInjectionWorkshopTests
     public class AuthenticationServiceTests
     {
         private const string DefaultAccountId = "joey";
+        private const string DefaultHashedPassword = "my hashed password";
         private AuthenticationService _authenticationService;
         private IFailedCounter _failedCounter;
         private IHash _hash;
@@ -32,8 +33,8 @@ namespace DependencyInjectionWorkshopTests
         [Test]
         public void is_valid()
         {
-            _profile.GetPassword(DefaultAccountId).Returns("my hashed password");
-            _hash.Compute("abc").Returns("my hashed password");
+            _profile.GetPassword(DefaultAccountId).Returns(DefaultHashedPassword);
+            _hash.Compute("abc").Returns(DefaultHashedPassword);
             _otpService.GetCurrentOtp(DefaultAccountId).Returns("123456");
 
             var isValid = _authenticationService.Verify(DefaultAccountId, "abc", "123456");
