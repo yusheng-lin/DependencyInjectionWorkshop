@@ -57,6 +57,8 @@ namespace DependencyInjectionWorkshopTests
         [Test]
         public void notify_user_when_invalid()
         {
+            WhenInvalid();
+            _notification.Received(1).Notify(Arg.Is<string>(m => m.Contains(DefaultAccountId)));
         }
 
         private static void ShouldBeInvalid(bool isValid)
