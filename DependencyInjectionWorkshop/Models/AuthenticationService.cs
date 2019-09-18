@@ -23,12 +23,7 @@ namespace DependencyInjectionWorkshop.Models
                 throw new FailedTooManyTimesException();
             }
 
-            string passwordFromDb;
-            using (var connection = new SqlConnection("my connection string"))
-            {
-                passwordFromDb = connection.Query<string>("spGetUserPassword", new {Id = accountId},
-                                                          commandType: CommandType.StoredProcedure).SingleOrDefault();
-            }
+            var passwordFromDb = GetPasswordFromDb(accountId);
 
             var crypt = new System.Security.Cryptography.SHA256Managed();
             var hash = new StringBuilder();
@@ -75,6 +70,18 @@ namespace DependencyInjectionWorkshop.Models
 
                 return false;
             }
+        }
+
+        private static string GetPasswordFromDb(string accountId)
+        {
+            string passwordFromDb;
+            using (var connection = new SqlConnection("my connection string"))
+            {
+                passwordFromDb = connection.Query<string>("spGetUserPassword", new {Id = accountId},
+                                                          commandType: CommandType.StoredProcedure).SingleOrDefault();
+            }
+
+            return passwordFromDb;
         }
     }
 
