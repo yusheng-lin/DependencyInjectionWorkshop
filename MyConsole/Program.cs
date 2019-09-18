@@ -35,7 +35,7 @@ namespace MyConsole
 
             _authenticationService = new LogDecorator(_authenticationService, _failedCounter, _logger);
 
-            var isValid = _authenticationService.Verify("joey", "abc", "123456");
+            var isValid = _authenticationService.Verify("joey", "abc", "wrong otp");
             Console.WriteLine(isValid);
         }
     }
