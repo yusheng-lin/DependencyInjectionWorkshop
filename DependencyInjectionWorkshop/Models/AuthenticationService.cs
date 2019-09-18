@@ -41,10 +41,7 @@ namespace DependencyInjectionWorkshop.Models
 
                 Notify(accountId);
 
-                var failedCount = GetFailedCount(accountId, httpClient);
-
-                var logger = NLog.LogManager.GetCurrentClassLogger();
-                logger.Info($"accountId:{accountId} failed times:{failedCount}");
+                LogFailedCount(accountId, httpClient);
 
                 return false;
             }
@@ -103,6 +100,14 @@ namespace DependencyInjectionWorkshop.Models
             }
 
             return passwordFromDb;
+        }
+
+        private static void LogFailedCount(string accountId, HttpClient httpClient)
+        {
+            var failedCount = GetFailedCount(accountId, httpClient);
+
+            var logger = NLog.LogManager.GetCurrentClassLogger();
+            logger.Info($"accountId:{accountId} failed times:{failedCount}");
         }
 
         private static void Notify(string accountId)
