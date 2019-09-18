@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extras.DynamicProxy;
-using Castle.DynamicProxy;
 using DependencyInjectionWorkshop.Models;
 
 namespace MyConsole
@@ -40,7 +38,6 @@ namespace MyConsole
             builder.RegisterType<FakeLogger>().As<ILogger>();
             builder.RegisterType<FakeContext>().As<IContext>();
 
-
             builder.RegisterType<AuditLogInterceptor>();
 
             builder.RegisterType<AuthenticationService>().As<IAuthentication>()
@@ -61,63 +58,11 @@ namespace MyConsole
         }
     }
 
-    internal class FakeContext:IContext
+    internal class FakeContext : IContext
     {
         public string GetCurrentUser()
         {
             return "JoeyChen9191";
-        }
-    }
-
-    internal class AuditLogInterceptor : IInterceptor
-    {
-        private readonly ILogger _logger;
-        private readonly IContext _context;
-
-        public AuditLogInterceptor(ILogger logger, IContext context)
-        {
-            _logger = logger;
-            _context = context;
-        }
-
-        public void Intercept(IInvocation invocation)
-        {
-            string currentUser = _context.GetCurrentUser();
-            var message = $"{currentUser} invoke method - {invocation.TargetType.FullName}.{invocation.Method.Name}:" +
-                $"{string.Join("|", invocation.Arguments.Select(x => (x ?? "").ToString()))}";
-
-            _logger.Info(message);
-
-            invocation.Proceed();
-
-            _logger.Info($"result value is {invocation.ReturnValue}");
-        }
-    }
-
-    internal interface IContext
-    {
-        string GetCurrentUser();
-    }
-
-    internal class LogMethodInfoDecorator : AuthenticationBaseDecorator
-    {
-        private readonly ILogger _logger;
-
-        public LogMethodInfoDecorator(IAuthentication authentication, ILogger logger) : base(authentication)
-        {
-            _logger = logger;
-        }
-
-        public override bool Verify(string accountId, string password, string otp)
-        {
-            var message = $"{nameof(AuthenticationService)}.{nameof(Verify)}:{accountId} | {password} |{otp}";
-            _logger.Info(message);
-
-            var isValid = base.Verify(accountId, password, otp);
-
-            _logger.Info($"{accountId} isValid: {isValid.ToString()}");
-
-            return isValid;
         }
     }
 
