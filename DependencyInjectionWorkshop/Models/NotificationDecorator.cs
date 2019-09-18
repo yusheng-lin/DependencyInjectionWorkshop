@@ -1,12 +1,16 @@
 ﻿namespace DependencyInjectionWorkshop.Models
 {
-    public class AuthenticationBaseDecorator
+    public class AuthenticationBaseDecorator : IAuthentication
     {
+        protected IAuthentication _authentication;
+        public bool Verify(string accountId, string password, string otp)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 
-    public class NotificationDecorator : AuthenticationBaseDecorator, IAuthentication
+    public class NotificationDecorator : AuthenticationBaseDecorator
     {
-        private readonly IAuthentication _authentication;
         private readonly INotification _notification;
 
         public NotificationDecorator(IAuthentication authentication, INotification notification)
