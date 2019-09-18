@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using Dapper;
 
@@ -29,6 +30,21 @@ namespace DependencyInjectionWorkshop.Models
             var hashedPassword = hash.ToString();
 
             throw new NotImplementedException();
+        }
+
+        public string GetOtp(string accountId)
+        {
+            var httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com/") };
+            var response = httpClient.PostAsJsonAsync("api/otps", accountId).Result;
+            if (response.IsSuccessStatusCode)
+            {
+                return response.Content.ReadAsAsync<string>().Result;
+            }
+            else
+            {
+                throw new Exception($"web api error, accountId:{accountId}");
+            }
+
         }
     }
 }
