@@ -26,7 +26,7 @@ namespace DependencyInjectionWorkshop.Models
 
             if (passwordFromDb == hashedPassword && otp == currentOtp)
             {
-                ResetFailedCount(accountId, new HttpClient() {BaseAddress = new Uri("http://joey.com/")});
+                ResetFailedCount(accountId);
 
                 return true;
             }
@@ -121,9 +121,10 @@ namespace DependencyInjectionWorkshop.Models
             slackClient.PostMessage(response1 => { }, "my channel", message, "my bot name");
         }
 
-        private static void ResetFailedCount(string accountId, HttpClient httpClient)
+        private static void ResetFailedCount(string accountId)
         {
-            var resetResponse = httpClient.PostAsJsonAsync("api/failedCounter/Reset", accountId).Result;
+            var resetResponse = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
+                                .PostAsJsonAsync("api/failedCounter/Reset", accountId).Result;
             resetResponse.EnsureSuccessStatusCode();
         }
     }
