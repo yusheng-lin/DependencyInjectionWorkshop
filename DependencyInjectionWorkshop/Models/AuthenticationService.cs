@@ -49,11 +49,16 @@ namespace DependencyInjectionWorkshop.Models
             }
             else
             {
-                int failedCount = _failedCounter.Get(accountId);
-                _logger.Info($"accountId:{accountId} failed times:{failedCount}");
+                LogMessage(accountId);
 
                 return false;
             }
+        }
+
+        private void LogMessage(string accountId)
+        {
+            int failedCount = _failedCounter.Get(accountId);
+            _logger.Info($"accountId:{accountId} failed times:{failedCount}");
         }
     }
 
