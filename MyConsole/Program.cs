@@ -34,6 +34,9 @@ namespace MyConsole
             _authenticationService = new FailedCounterDecorator(_authenticationService, _failedCounter);
 
             _authenticationService = new LogDecorator(_authenticationService, _failedCounter, _logger);
+
+            var isValid = _authenticationService.Verify("joey", "abc", "123456");
+            Console.WriteLine(isValid);
         }
     }
 }
