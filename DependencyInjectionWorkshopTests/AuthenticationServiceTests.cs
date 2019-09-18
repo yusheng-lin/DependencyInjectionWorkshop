@@ -1,4 +1,5 @@
-﻿using DependencyInjectionWorkshop.Models;
+﻿using System;
+using DependencyInjectionWorkshop.Models;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -84,6 +85,14 @@ namespace DependencyInjectionWorkshopTests
         {
             WhenValid();
             FailedCountShouldReset(DefaultAccountId);
+        }
+
+        [Test]
+        public void when_account_is_locked()
+        {
+            _failedCounter.IsAccountLocked(DefaultAccountId).Returns(true);
+            TestDelegate action = () => WhenVerify(DefaultAccountId, DefaultInputPassword, DefaultOtp);
+            Assert.Throws<FailedTooManyTimesException>(action);
         }
 
         private static void ShouldBeInvalid(bool isValid)
