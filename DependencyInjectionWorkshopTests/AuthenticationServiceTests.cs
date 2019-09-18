@@ -51,6 +51,11 @@ namespace DependencyInjectionWorkshopTests
             GivenOtp(DefaultAccountId, DefaultOtp);
 
             var isValid = WhenVerify(DefaultAccountId, DefaultInputPassword, "wrong otp");
+            ShouldBeInvalid(isValid);
+        }
+
+        private static void ShouldBeInvalid(bool isValid)
+        {
             Assert.IsFalse(isValid);
         }
 
