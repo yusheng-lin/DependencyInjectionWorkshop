@@ -22,7 +22,7 @@ namespace DependencyInjectionWorkshop.Models
 
             var hashedPassword = ComputeHashedPassword(password);
 
-            var currentOtp = GetCurrentOtp(accountId, new HttpClient() {BaseAddress = new Uri("http://joey.com/")});
+            var currentOtp = GetCurrentOtp(accountId);
 
             if (passwordFromDb == hashedPassword && otp == currentOtp)
             {
@@ -62,16 +62,16 @@ namespace DependencyInjectionWorkshop.Models
             return hashedPassword;
         }
 
-        private static string GetCurrentOtp(string accountId, HttpClient httpClient)
+        private static string GetCurrentOtp(string accountId)
         {
-            var response = httpClient.PostAsJsonAsync("api/otps", accountId).Result;
+            var response = new HttpClient() {BaseAddress = new Uri("http://joey.com/")}
+                           .PostAsJsonAsync("api/otps", accountId).Result;
             if (!response.IsSuccessStatusCode)
             {
                 throw new Exception($"web api error, accountId:{accountId}");
             }
 
-            var currentOtp = response.Content.ReadAsAsync<string>().Result;
-            return currentOtp;
+            return response.Content.ReadAsAsync<string>().Result;
         }
 
         private static int GetFailedCount(string accountId, HttpClient httpClient)
