@@ -15,8 +15,7 @@ namespace DependencyInjectionWorkshop.Models
         {
             var httpClient = new HttpClient() {BaseAddress = new Uri("http://joey.com/")};
 
-            var isAccountLocked = IsAccountLocked(accountId, httpClient);
-            if (isAccountLocked)
+            if (IsAccountLocked(accountId, httpClient))
             {
                 throw new FailedTooManyTimesException();
             }
