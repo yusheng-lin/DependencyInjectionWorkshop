@@ -10,6 +10,11 @@
             _failedCounter = failedCounter;
         }
 
+        public void AddFailedCount(string accountId)
+        {
+            _failedCounter.Add(accountId);
+        }
+
         public override bool Verify(string accountId, string password, string otp)
         {
             CheckAccountIsLocked(accountId);
