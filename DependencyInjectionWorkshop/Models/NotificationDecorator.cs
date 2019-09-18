@@ -1,6 +1,10 @@
 ﻿namespace DependencyInjectionWorkshop.Models
 {
-    public class NotificationDecorator : IAuthentication
+    public class AuthenticationBaseDecorator
+    {
+    }
+
+    public class NotificationDecorator : AuthenticationBaseDecorator, IAuthentication
     {
         private readonly IAuthentication _authentication;
         private readonly INotification _notification;
