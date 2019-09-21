@@ -9,23 +9,19 @@ namespace DependencyInjectionWorkshop.Models
         private readonly IHash _hash;
         private readonly IOtpService _otpService;
         private readonly INotification _notification;
-        private readonly IFailCounter _failCounter;
+        private readonly IFailedCounter _failedCounter;
         private readonly ILogger _logger;
 
-        public AuthenticationService(
-            IProfile profile, 
-            IHash hash, 
-            IOtpService otpService, 
-            INotification notification, 
-            IFailCounter failCounter,
-            ILogger logger)
+
+        public AuthenticationService(IFailedCounter failedCounter, ILogger logger, IOtpService otpService,
+            IProfile profile, IHash hash, INotification notification)
         {
+            _failedCounter = failedCounter;
+            _logger = logger;
+            _otpService = otpService;
             _profile = profile;
             _hash = hash;
-            _otpService = otpService;
             _notification = notification;
-            _failCounter = failCounter;
-            _logger = logger;
         }
 
         //帳號 密碼 otp
@@ -36,7 +32,7 @@ namespace DependencyInjectionWorkshop.Models
             //get otp
             //compare hash and opt
 
-            if (_failCounter.IsAccountLocked(account))
+            if (_failedCounter.IsAccountLocked(account))
             {
                 throw new FailedTooManyTimesException();
             }
@@ -49,13 +45,13 @@ namespace DependencyInjectionWorkshop.Models
 
             if (dbPassword != hashedPassword || otp != currentOpt)
             {
-                _failCounter.AddFailedCount(account);
-                _logger.LogInfo(account, _failCounter.GetFailedCount(account));
+                _failedCounter.AddFailedCount(account);
+                _logger.LogInfo($"accountId:{account} failed times:{_failedCounter.GetFailedCount(account)}");
                 _notification.Send(account);
                 return false;
             }
 
-            _failCounter.RestFailedCount(account);
+            _failedCounter.RestFailedCount(account);
             return true;
         }
     }

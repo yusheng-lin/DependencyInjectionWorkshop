@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace DependencyInjectionWorkshop.Models
 {
     [Serializable]
-    internal class FailedTooManyTimesException : Exception
+    public class FailedTooManyTimesException : Exception
     {
         public FailedTooManyTimesException()
         {
