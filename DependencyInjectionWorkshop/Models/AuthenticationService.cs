@@ -1,47 +1,9 @@
-﻿using Dapper;
-using SlackAPI;
+﻿using SlackAPI;
 using System;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 
 namespace DependencyInjectionWorkshop.Models
 {
-    public class ProfileDao
-    {
-        public string GetPassword(string account)
-        {
-            using (var connection = new SqlConnection("my connection string"))
-            {
-                return connection.Query<string>("spGetUserPassword", new {Id = account},
-                        commandType: CommandType.StoredProcedure)
-                    .SingleOrDefault();
-            }
-        }
-    }
-
-    public class Sha256Adapter
-    {
-        public Sha256Adapter()
-        {
-        }
-
-        public string GetHashedPassword(string password)
-        {
-            var crypt = new System.Security.Cryptography.SHA256Managed();
-            var hash = new StringBuilder();
-            var crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(password));
-            foreach (var theByte in crypto)
-            {
-                hash.Append(theByte.ToString("x2"));
-            }
-
-            return hash.ToString();
-        }
-    }
-
     public class OtpService
     {
         public OtpService()
@@ -114,6 +76,19 @@ namespace DependencyInjectionWorkshop.Models
         }
     }
 
+    public class NLogAdapter
+    {
+        public NLogAdapter()
+        {
+        }
+
+        public void LogMessage(string account, int failedCount)
+        {
+            var logger = NLog.LogManager.GetCurrentClassLogger();
+            logger.Info($"accountId:{account} failed times:{failedCount}");
+        }
+    }
+
     public class AuthenticationService
     {
         private readonly ProfileDao _profileDao;
@@ -121,14 +96,22 @@ namespace DependencyInjectionWorkshop.Models
         private readonly OtpService _otpService;
         private readonly SlackAdapter _slackAdapter;
         private readonly FailCounter _failCounter;
+        private readonly NLogAdapter _nLogAdapter;
 
-        public AuthenticationService(ProfileDao profileDao)
+        public AuthenticationService(
+            ProfileDao profileDao, 
+            Sha256Adapter sha256Adapter, 
+            OtpService otpService, 
+            SlackAdapter slackAdapter, 
+            FailCounter failCounter, 
+            NLogAdapter nLogAdapter)
         {
             _profileDao = profileDao;
-            _sha256Adapter = new Sha256Adapter();
-            _otpService = new OtpService();
-            _slackAdapter = new SlackAdapter();
-            _failCounter = new FailCounter();
+            _sha256Adapter = sha256Adapter;
+            _otpService = otpService;
+            _slackAdapter = slackAdapter;
+            _failCounter = failCounter;
+            _nLogAdapter = nLogAdapter;
         }
 
         //帳號 密碼 otp
@@ -154,19 +137,13 @@ namespace DependencyInjectionWorkshop.Models
             if (dbPassword != hashedPassword.ToString() || otp != currentOpt)
             {
                 _failCounter.AddFailedCount(account);
-                LogMessage(account, _failCounter.GetFailedCount(account));
+                _nLogAdapter.LogMessage(account, _failCounter.GetFailedCount(account));
                 _slackAdapter.NotifyUser(account);
                 return false;
             }
 
             _failCounter.RestFailedCount(account);
             return true;
-        }
-
-        private static void LogMessage(string account, int failedCount)
-        {
-            var logger = NLog.LogManager.GetCurrentClassLogger();
-            logger.Info($"accountId:{account} failed times:{failedCount}");
         }
     }
 }
