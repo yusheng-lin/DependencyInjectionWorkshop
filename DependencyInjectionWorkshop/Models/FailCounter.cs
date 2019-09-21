@@ -2,7 +2,15 @@
 
 namespace DependencyInjectionWorkshop.Models
 {
-    public class FailCounter
+    public interface IFailCounter
+    {
+        void RestFailedCount(string account);
+        int GetFailedCount(string account);
+        void AddFailedCount(string account);
+        bool IsAccountLocked(string account);
+    }
+
+    public class FailCounter : IFailCounter
     {
         public FailCounter()
         {

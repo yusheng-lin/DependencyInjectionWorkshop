@@ -6,26 +6,26 @@ namespace DependencyInjectionWorkshop.Models
     public class AuthenticationService
     {
         private readonly IProfile _profile;
-        private readonly Sha256Adapter _sha256Adapter;
-        private readonly OtpService _otpService;
-        private readonly SlackAdapter _slackAdapter;
-        private readonly FailCounter _failCounter;
-        private readonly NLogAdapter _nLogAdapter;
+        private readonly IHash _hash;
+        private readonly IOtpService _otpService;
+        private readonly INotification _notification;
+        private readonly IFailCounter _failCounter;
+        private readonly ILogger _logger;
 
         public AuthenticationService(
             IProfile profile, 
-            Sha256Adapter sha256Adapter, 
-            OtpService otpService, 
-            SlackAdapter slackAdapter, 
-            FailCounter failCounter, 
-            NLogAdapter nLogAdapter)
+            IHash hash, 
+            IOtpService otpService, 
+            INotification notification, 
+            IFailCounter failCounter,
+            ILogger logger)
         {
             _profile = profile;
-            _sha256Adapter = sha256Adapter;
+            _hash = hash;
             _otpService = otpService;
-            _slackAdapter = slackAdapter;
+            _notification = notification;
             _failCounter = failCounter;
-            _nLogAdapter = nLogAdapter;
+            _logger = logger;
         }
 
         //帳號 密碼 otp
@@ -35,7 +35,6 @@ namespace DependencyInjectionWorkshop.Models
             //hash
             //get otp
             //compare hash and opt
-            var httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com/") };
 
             if (_failCounter.IsAccountLocked(account))
             {
@@ -44,15 +43,15 @@ namespace DependencyInjectionWorkshop.Models
 
             var dbPassword = _profile.GetPassword(account);
 
-            var hashedPassword = _sha256Adapter.GetHashedPassword(password);
+            var hashedPassword = _hash.Compute(password);
 
             var currentOpt = _otpService.GetCurrentOpt(account);
 
-            if (dbPassword != hashedPassword.ToString() || otp != currentOpt)
+            if (dbPassword != hashedPassword || otp != currentOpt)
             {
                 _failCounter.AddFailedCount(account);
-                _nLogAdapter.LogMessage(account, _failCounter.GetFailedCount(account));
-                _slackAdapter.NotifyUser(account);
+                _logger.LogInfo(account, _failCounter.GetFailedCount(account));
+                _notification.Send(account);
                 return false;
             }
 

@@ -2,13 +2,18 @@
 
 namespace DependencyInjectionWorkshop.Models
 {
-    public class SlackAdapter
+    public interface INotification
+    {
+        void Send(string account);
+    }
+
+    public class SlackAdapter : INotification
     {
         public SlackAdapter()
         {
         }
 
-        public void NotifyUser(string account)
+        public void Send(string account)
         {
             var message = $"{account} try to login failed";
             var slackClient = new SlackClient("my api token");
