@@ -118,11 +118,11 @@ namespace DependencyInjectionWorkshop.Models
                 return false;
             }
 
-            RestFailCount(account, httpClient);
+            RestFailedCount(account, httpClient);
             return true;
         }
 
-        private static void RestFailCount(string account, HttpClient httpClient)
+        private static void RestFailedCount(string account, HttpClient httpClient)
         {
             var resetResponse = httpClient.PostAsJsonAsync("api/failedCounter/Reset", account).Result;
             resetResponse.EnsureSuccessStatusCode();
