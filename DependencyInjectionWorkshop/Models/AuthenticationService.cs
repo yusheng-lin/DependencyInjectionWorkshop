@@ -42,15 +42,52 @@ namespace DependencyInjectionWorkshop.Models
         }
     }
 
+    public class OtpService
+    {
+        public OtpService()
+        {
+        }
+
+        public string GetCurrentOpt(string account, HttpClient httpClient)
+        {
+            var response = httpClient.PostAsJsonAsync("api/otps", account).Result;
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception($"web api error, accountId:{account}");
+            }
+
+            return response.Content.ReadAsAsync<string>().Result;
+        }
+    }
+
+    public class SlackAdapter
+    {
+        public SlackAdapter()
+        {
+        }
+
+        public void NotifyUser(string account)
+        {
+            var message = $"{account} try to login failed";
+            var slackClient = new SlackClient("my api token");
+            slackClient.PostMessage(response1 => { }, "my channel", message, "my bot name");
+        }
+    }
+
     public class AuthenticationService
     {
         private readonly ProfileDao _profileDao;
         private readonly Sha256Adapter _sha256Adapter;
+        private readonly OtpService _otpService;
+        private readonly SlackAdapter _slackAdapter;
 
         public AuthenticationService(ProfileDao profileDao)
         {
             _profileDao = profileDao;
             _sha256Adapter = new Sha256Adapter();
+            _otpService = new OtpService();
+            _slackAdapter = new SlackAdapter();
         }
 
         //帳號 密碼 otp
@@ -71,13 +108,13 @@ namespace DependencyInjectionWorkshop.Models
 
             var hashedPassword = _sha256Adapter.GetHashedPassword(password);
 
-            var currentOpt = GetCurrentOpt(account, httpClient);
+            var currentOpt = _otpService.GetCurrentOpt(account, httpClient);
 
             if (dbPassword != hashedPassword.ToString() || otp != currentOpt)
             {
                 AddFailedCount(account, httpClient);
                 LogMessage(account, GetFailedCount(account, httpClient));
-                NotifyUser(account);
+                _slackAdapter.NotifyUser(account);
                 return false;
             }
 
@@ -97,13 +134,6 @@ namespace DependencyInjectionWorkshop.Models
             logger.Info($"accountId:{account} failed times:{failedCount}");
         }
 
-        private static void NotifyUser(string account)
-        {
-            var message = $"{account} try to login failed";
-            var slackClient = new SlackClient("my api token");
-            slackClient.PostMessage(response1 => { }, "my channel", message, "my bot name");
-        }
-
         private static int GetFailedCount(string account, HttpClient httpClient)
         {
             var failedCountResponse =
@@ -119,18 +149,6 @@ namespace DependencyInjectionWorkshop.Models
         {
             var addFailedCountResponse = httpClient.PostAsJsonAsync("api/failedCounter/Add", account).Result;
             addFailedCountResponse.EnsureSuccessStatusCode();
-        }
-
-        private static string GetCurrentOpt(string account, HttpClient httpClient)
-        {
-            var response = httpClient.PostAsJsonAsync("api/otps", account).Result;
-
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new Exception($"web api error, accountId:{account}");
-            }
-
-            return response.Content.ReadAsAsync<string>().Result;
         }
 
         private static bool IsAccountLocked(string account, HttpClient httpClient)
