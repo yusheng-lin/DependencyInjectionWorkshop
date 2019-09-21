@@ -24,7 +24,12 @@ namespace DependencyInjectionWorkshop.Models
 
     public class AuthenticationService
     {
-        private readonly ProfileDao _profileDao = new ProfileDao();
+        private readonly ProfileDao _profileDao;
+
+        public AuthenticationService(ProfileDao profileDao)
+        {
+            _profileDao = profileDao;
+        }
 
         //帳號 密碼 otp
         public bool Verify(string account, string password, string otp)
