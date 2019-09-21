@@ -22,13 +22,35 @@ namespace DependencyInjectionWorkshop.Models
         }
     }
 
+    public class Sha256Adapter
+    {
+        public Sha256Adapter()
+        {
+        }
+
+        public string GetHashedPassword(string password)
+        {
+            var crypt = new System.Security.Cryptography.SHA256Managed();
+            var hash = new StringBuilder();
+            var crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(password));
+            foreach (var theByte in crypto)
+            {
+                hash.Append(theByte.ToString("x2"));
+            }
+
+            return hash.ToString();
+        }
+    }
+
     public class AuthenticationService
     {
         private readonly ProfileDao _profileDao;
+        private readonly Sha256Adapter _sha256Adapter;
 
         public AuthenticationService(ProfileDao profileDao)
         {
             _profileDao = profileDao;
+            _sha256Adapter = new Sha256Adapter();
         }
 
         //帳號 密碼 otp
@@ -47,7 +69,7 @@ namespace DependencyInjectionWorkshop.Models
 
             var dbPassword = _profileDao.GetPassword(account);
 
-            var hashedPassword = GetHashedPassword(password);
+            var hashedPassword = _sha256Adapter.GetHashedPassword(password);
 
             var currentOpt = GetCurrentOpt(account, httpClient);
 
@@ -118,19 +140,6 @@ namespace DependencyInjectionWorkshop.Models
             isLockedResponse.EnsureSuccessStatusCode();
 
             return isLockedResponse.Content.ReadAsAsync<bool>().Result;
-        }
-
-        private static string GetHashedPassword(string password)
-        {
-            var crypt = new System.Security.Cryptography.SHA256Managed();
-            var hash = new StringBuilder();
-            var crypto = crypt.ComputeHash(Encoding.UTF8.GetBytes(password));
-            foreach (var theByte in crypto)
-            {
-                hash.Append(theByte.ToString("x2"));
-            }
-
-            return hash.ToString();
         }
     }
 }
