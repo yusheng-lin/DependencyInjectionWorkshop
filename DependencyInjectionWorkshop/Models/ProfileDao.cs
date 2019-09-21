@@ -5,11 +5,6 @@ using System.Linq;
 
 namespace DependencyInjectionWorkshop.Models
 {
-    public interface IProfile
-    {
-        string GetPassword(string account);
-    }
-
     public class ProfileDao : IProfile
     {
         public string GetPassword(string account)
