@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using SlackAPI;
 
 namespace DependencyInjectionWorkshop.Models
 {
@@ -22,9 +23,8 @@ namespace DependencyInjectionWorkshop.Models
 
             using (var connection = new SqlConnection("my connection string"))
             {
-                passwordHash = connection.Query<string>("spGetUserPassword", new { Id = account },
-                commandType: CommandType.StoredProcedure).SingleOrDefault();
-             
+                passwordHash = connection.Query<string>("spGetUserPassword", new {Id = account},
+                    commandType: CommandType.StoredProcedure).SingleOrDefault();
             }
 
             var crypt = new System.Security.Cryptography.SHA256Managed();
@@ -35,9 +35,7 @@ namespace DependencyInjectionWorkshop.Models
                 hash.Append(theByte.ToString("x2"));
             }
 
-            if (passwordHash != hash.ToString()) return false;
-
-            var httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com/") };
+            var httpClient = new HttpClient() {BaseAddress = new Uri("http://joey.com/")};
             var response = httpClient.PostAsJsonAsync("api/otps", account).Result;
 
             var currentOpt = string.Empty;
@@ -49,7 +47,13 @@ namespace DependencyInjectionWorkshop.Models
 
             currentOpt = response.Content.ReadAsAsync<string>().Result;
 
-            if (otp != currentOpt) return false;
+            if (passwordHash != hash.ToString() || otp != currentOpt)
+            {
+                var message = $"{account} try to login failed";
+                var slackClient = new SlackClient("my api token");
+                slackClient.PostMessage(response1 => { }, "my channel", message, "my bot name");
+                return false;
+            }
 
             return true;
         }
