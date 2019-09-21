@@ -9,8 +9,23 @@ using System.Text;
 
 namespace DependencyInjectionWorkshop.Models
 {
+    public class ProfileDao
+    {
+        public string GetPassword(string account)
+        {
+            using (var connection = new SqlConnection("my connection string"))
+            {
+                return connection.Query<string>("spGetUserPassword", new {Id = account},
+                        commandType: CommandType.StoredProcedure)
+                    .SingleOrDefault();
+            }
+        }
+    }
+
     public class AuthenticationService
     {
+        private readonly ProfileDao _profileDao = new ProfileDao();
+
         //帳號 密碼 otp
         public bool Verify(string account, string password, string otp)
         {
@@ -25,7 +40,7 @@ namespace DependencyInjectionWorkshop.Models
                 throw new FailedTooManyTimesException();
             }
 
-            var dbPassword = GetPasswordFromDB(account);
+            var dbPassword = _profileDao.GetPassword(account);
 
             var hashedPassword = GetHashedPassword(password);
 
@@ -111,16 +126,6 @@ namespace DependencyInjectionWorkshop.Models
             }
 
             return hash.ToString();
-        }
-
-        private static string GetPasswordFromDB(string account)
-        {
-            using (var connection = new SqlConnection("my connection string"))
-            {
-                return connection.Query<string>("spGetUserPassword", new {Id = account},
-                        commandType: CommandType.StoredProcedure)
-                    .SingleOrDefault();
-            }
         }
     }
 }
