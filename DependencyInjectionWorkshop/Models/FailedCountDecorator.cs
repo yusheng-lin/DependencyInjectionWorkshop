@@ -1,10 +1,10 @@
 ﻿namespace DependencyInjectionWorkshop.Models
 {
-    public class AddFailedCountDecorator : AuthenticationDecoratorBase
+    public class FailedCountDecorator : AuthenticationDecoratorBase
     {
         private readonly IFailedCounter _failedCounter;
 
-        public AddFailedCountDecorator(IAuthentication authentication, IFailedCounter failedCounter) : base(authentication)
+        public FailedCountDecorator(IAuthentication authentication, IFailedCounter failedCounter) : base(authentication)
         {
             _failedCounter = failedCounter;
         }
@@ -13,7 +13,10 @@
         {
             var inValid = base.Verify(account, password, otp);
 
-            if (!inValid) this._failedCounter.AddFailedCount(account);
+            if (inValid)
+                this._failedCounter.RestFailedCount(account);
+            else
+                this._failedCounter.AddFailedCount(account);
 
             return inValid;
         }

@@ -26,11 +26,6 @@
         //帳號 密碼 otp
         public bool Verify(string account, string password, string otp)
         {
-            //get password
-            //hash
-            //get otp
-            //compare hash and opt
-
             if (_failedCounter.IsAccountLocked(account))
             {
                 throw new FailedTooManyTimesException();
@@ -48,7 +43,6 @@
                 return false;
             }
 
-            _failedCounter.RestFailedCount(account);
             return true;
         }
     }
