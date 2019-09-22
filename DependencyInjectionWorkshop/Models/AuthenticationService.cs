@@ -1,9 +1,11 @@
-﻿using System;
-using System.Net.Http;
-
-namespace DependencyInjectionWorkshop.Models
+﻿namespace DependencyInjectionWorkshop.Models
 {
-    public class AuthenticationService
+    public interface IAuthentication
+    {
+        bool Verify(string account, string password, string otp);
+    }
+
+    public class AuthenticationService : IAuthentication
     {
         private readonly IProfile _profile;
         private readonly IHash _hash;
