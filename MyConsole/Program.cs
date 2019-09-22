@@ -30,10 +30,11 @@ namespace MyConsole
             builder.RegisterType<FakeSlack>().As<INotification>();
             builder.RegisterType<FakeFailedCounter>().As<IFailedCounter>();
             builder.RegisterType<AuthenticationService>().As<IAuthentication>();
-
+        
             builder.RegisterDecorator<NotificationDecorator, IAuthentication>();
             builder.RegisterDecorator<FailedCounterDecorator, IAuthentication>();
             builder.RegisterDecorator<LogFailedCountDecorator, IAuthentication>();
+            builder.RegisterDecorator<LogMethodInfoDecorator, IAuthentication>();
 
             //_authentication = new NotificationDecorator(_authentication, _notification);
             //_authentication = new FailedCounterDecorator(_authentication, _failedCounter);
