@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Autofac.Extras.DynamicProxy;
 using DependencyInjectionWorkshop.Models;
 using System;
 
@@ -13,10 +14,14 @@ namespace MyConsole
         {
             RegisterContainer();
 
+            Console.WriteLine("who are you?");
+            var name = Console.ReadLine();
+            var context = _container.Resolve<IContext>();
+            context.SetCurrentUser(new Account() { Name = name });
+
             _authentication = _container.Resolve<IAuthentication>();
 
             var isValid = _authentication.Verify("joey", "abc", "wrong otp");
-            Console.WriteLine($"result:{isValid}");
         }
 
         private static void RegisterContainer()
@@ -29,16 +34,17 @@ namespace MyConsole
             builder.RegisterType<FakeLogger>().As<ILogger>();
             builder.RegisterType<FakeSlack>().As<INotification>();
             builder.RegisterType<FakeFailedCounter>().As<IFailedCounter>();
-            builder.RegisterType<AuthenticationService>().As<IAuthentication>();
-        
+            builder.RegisterType<AuthenticationService>()
+                .As<IAuthentication>()
+                .EnableInterfaceInterceptors()
+                .InterceptedBy(typeof(AuditLogInterceptor));
+
+            builder.RegisterType<AuditLogInterceptor>();
+            builder.RegisterType<MyContext>().As<IContext>().SingleInstance();
             builder.RegisterDecorator<NotificationDecorator, IAuthentication>();
             builder.RegisterDecorator<FailedCounterDecorator, IAuthentication>();
             builder.RegisterDecorator<LogFailedCountDecorator, IAuthentication>();
-            builder.RegisterDecorator<LogMethodInfoDecorator, IAuthentication>();
 
-            //_authentication = new NotificationDecorator(_authentication, _notification);
-            //_authentication = new FailedCounterDecorator(_authentication, _failedCounter);
-            //_authentication = new LogFailedCountDecorator(_authentication, _logger, _failedCounter);
             var container = builder.Build();
             _container = container;
         }
@@ -120,6 +126,28 @@ internal class FakeProfile : IProfile
     {
         Console.WriteLine($"{nameof(FakeProfile)}.{nameof(GetPassword)}({accountId})");
         return "my hashed password";
+    }
+}
+
+
+public interface IContext
+{
+    Account GetCurrentUser();
+    void SetCurrentUser(Account account);
+}
+
+public class MyContext : IContext
+{
+    private Account _account;
+
+    public Account GetCurrentUser()
+    {
+        return _account;
+    }
+
+    public void SetCurrentUser(Account account)
+    {
+        _account = account;
     }
 }
 
