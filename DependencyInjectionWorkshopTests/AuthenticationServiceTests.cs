@@ -5,8 +5,6 @@ using System;
 
 namespace DependencyInjectionWorkshopTests
 {
-
-
     [TestFixture]
     public class AuthenticationServiceTests
     {
@@ -15,7 +13,7 @@ namespace DependencyInjectionWorkshopTests
         private const string DefaultInputPassword = "abc";
         private const string DefaultOtp = "123456";
         private const int DefaultFailedCount = 88;
-        private AuthenticationService _authenticationService;
+        private IAuthentication _authenticationService;
         private IFailedCounter _failedCounter;
         private IHash _hash;
         private ILogger _logger;
@@ -33,7 +31,8 @@ namespace DependencyInjectionWorkshopTests
             _hash = Substitute.For<IHash>();
             _profile = Substitute.For<IProfile>();
             _authenticationService =
-                new AuthenticationService(_failedCounter, _logger, _otpService, _profile, _hash, _notification);
+                new AuthenticationService(_failedCounter, _logger, _otpService, _profile, _hash);
+            _authenticationService = new NotificationDecorator(_authenticationService, _notification);
         }
 
         [Test]

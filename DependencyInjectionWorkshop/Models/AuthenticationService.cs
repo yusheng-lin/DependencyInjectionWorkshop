@@ -10,20 +10,17 @@
         private readonly IProfile _profile;
         private readonly IHash _hash;
         private readonly IOtpService _otpService;
-        private readonly INotification _notification;
         private readonly IFailedCounter _failedCounter;
         private readonly ILogger _logger;
 
-
         public AuthenticationService(IFailedCounter failedCounter, ILogger logger, IOtpService otpService,
-            IProfile profile, IHash hash, INotification notification)
+            IProfile profile, IHash hash)
         {
             _failedCounter = failedCounter;
             _logger = logger;
             _otpService = otpService;
             _profile = profile;
             _hash = hash;
-            _notification = notification;
         }
 
         //帳號 密碼 otp
@@ -49,7 +46,6 @@
             {
                 _failedCounter.AddFailedCount(account);
                 _logger.LogInfo($"accountId:{account} failed times:{_failedCounter.GetFailedCount(account)}");
-                _notification.Send(account);
                 return false;
             }
 
