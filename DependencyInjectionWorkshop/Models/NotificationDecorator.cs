@@ -1,28 +1,36 @@
 ﻿namespace DependencyInjectionWorkshop.Models
 {
-    public class NotificationDecorator : IAuthentication
+    public abstract class AuthenticationDecoratorBase : IAuthentication
     {
         private readonly IAuthentication _authentication;
-        private readonly INotification _notification;
 
-        public NotificationDecorator(IAuthentication authentication, INotification notification)
+        protected AuthenticationDecoratorBase(IAuthentication authentication)
         {
             _authentication = authentication;
+        }
+
+        public virtual bool Verify(string account, string password, string otp)
+        {
+            return this._authentication.Verify(account, password, otp);
+        }
+    }
+
+    public class NotificationDecorator : AuthenticationDecoratorBase
+    {
+        private readonly INotification _notification;
+
+        public NotificationDecorator(IAuthentication authentication, INotification notification) : base(authentication)
+        {
             _notification = notification;
         }
 
-        public bool Verify(string account, string password, string otp)
+        public override bool Verify(string account, string password, string otp)
         {
-            var isValid = this._authentication.Verify(account, password, otp);
+            var isValid = base.Verify(account, password, otp);
 
-            if (!isValid) this.Send(account);
+            if (!isValid) this._notification.Send(account);
 
             return isValid;
-        }
-
-        private void Send(string account)
-        {
-            _notification.Send(account);
         }
     }
 }

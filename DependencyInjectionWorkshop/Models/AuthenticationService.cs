@@ -44,7 +44,6 @@
 
             if (dbPassword != hashedPassword || otp != currentOpt)
             {
-                _failedCounter.AddFailedCount(account);
                 _logger.LogInfo($"accountId:{account} failed times:{_failedCounter.GetFailedCount(account)}");
                 return false;
             }
