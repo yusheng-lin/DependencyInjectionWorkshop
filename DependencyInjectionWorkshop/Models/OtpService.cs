@@ -5,7 +5,7 @@ namespace DependencyInjectionWorkshop.Models
 {
     public interface IOtpService
     {
-        string GetCurrentOpt(string account);
+        string GetCurrentOtp(string account);
     }
 
     public class OtpService : IOtpService
@@ -14,7 +14,7 @@ namespace DependencyInjectionWorkshop.Models
         {
         }
 
-        public string GetCurrentOpt(string account)
+        public string GetCurrentOtp(string account)
         {
             var response = new HttpClient().PostAsJsonAsync("api/otps", account).Result;
 

@@ -31,9 +31,10 @@ namespace DependencyInjectionWorkshopTests
             _hash = Substitute.For<IHash>();
             _profile = Substitute.For<IProfile>();
             _authenticationService =
-                new AuthenticationService(_failedCounter, _logger, _otpService, _profile, _hash);
+                new AuthenticationService(_otpService, _profile, _hash);
+            _authenticationService = new FailedCounterDecorator(_authenticationService, _failedCounter);
             _authenticationService = new NotificationDecorator(_authenticationService, _notification);
-            _authenticationService = new FailedCountDecorator(_authenticationService, _failedCounter);
+            _authenticationService = new LogFailedCountDecorator(_authenticationService, _failedCounter, _logger);
         }
 
         [Test]
@@ -96,6 +97,17 @@ namespace DependencyInjectionWorkshopTests
             ShouldThrow<FailedTooManyTimesException>();
         }
 
+        [Test]
+        public void method_call_should_be_correct()
+        {
+            WhenInvalid();
+            Received.InOrder(() =>
+            {
+                _failedCounter.AddFailedCount(DefaultAccountId);
+                _notification.Send(DefaultAccountId);
+            });
+        }
+
         private static void ShouldBeInvalid(bool isValid)
         {
             Assert.IsFalse(isValid);
@@ -150,7 +162,7 @@ namespace DependencyInjectionWorkshopTests
 
         private void ShouldResetFailedCount(string accountId)
         {
-            _failedCounter.Received(1).RestFailedCount(accountId);
+            _failedCounter.Received(1).ResetFailedCount(accountId);
         }
 
         private bool WhenValid()
@@ -170,7 +182,7 @@ namespace DependencyInjectionWorkshopTests
 
         private void GivenOtp(string accountId, string otp)
         {
-            _otpService.GetCurrentOpt(accountId).Returns(otp);
+            _otpService.GetCurrentOtp(accountId).Returns(otp);
         }
 
         private void GivenHash(string inputPassword, string hashedPassword)
