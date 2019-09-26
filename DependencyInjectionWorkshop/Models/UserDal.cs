@@ -5,9 +5,14 @@ using Dapper;
 
 namespace DependencyInjectionWorkshop.Models
 {
-    public class UserDal
+    public interface IUserService
     {
-        public string GetPasswordFromDb(string account)
+        string GetPassword(string account);
+    }
+
+    public class UserDal : IUserService
+    {
+        public string GetPassword(string account)
         {
             string passwordFromDb;
             using (var connection = new SqlConnection("my connection string"))

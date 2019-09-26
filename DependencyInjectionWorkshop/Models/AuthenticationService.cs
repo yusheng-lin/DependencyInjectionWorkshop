@@ -6,20 +6,20 @@ namespace DependencyInjectionWorkshop.Models
 {
     public class AuthenticationService
     {
-        private readonly UserDal _userDal;
+        private readonly IUserService _userService;
         private readonly IHash _hash;
-        private readonly OtpService _otpService;
-        private readonly NLogAdapter _nLogAdapter;
-        private readonly SlackAdapter _slackAdapter;
-        private readonly FailedCount _failedCount;
+        private readonly IOtpService _otpService;
+        private readonly ILogger _logger;
+        private readonly IMessenger _messenger;
+        private readonly IFailedCount _failedCount;
 
-        public AuthenticationService(UserDal userDal, IHash hash, OtpService otpService, NLogAdapter nLogAdapter, SlackAdapter slackAdapter, FailedCount failedCount)
+        public AuthenticationService(IUserService userService, IHash hash, IOtpService otpService, ILogger logger, IMessenger messenger, IFailedCount failedCount)
         {
-            _userDal = userDal;
+            _userService = userService;
             _hash = hash;
             _otpService = otpService;
-            _nLogAdapter = nLogAdapter;
-            _slackAdapter = slackAdapter;
+            _logger = logger;
+            _messenger = messenger;
             _failedCount = failedCount;
         }
 
@@ -30,25 +30,25 @@ namespace DependencyInjectionWorkshop.Models
             {
                 throw new FailedTooManyTimesException();
             }
-            var passwordFromDb = _userDal.GetPasswordFromDb(account);
+            var passwordFromDb = _userService.GetPassword(account);
 
             var hashedPassword = _hash.GetHashedPassword(password);
 
-            var currentOtp = _otpService.GetCurrentOtp(account, new HttpClient() { BaseAddress = new Uri("http://joey.com/") });
+            var currentOtp = _otpService.GetCurrentOtp(account);
 
             if (passwordFromDb == hashedPassword && otp == currentOtp)
             {
-                _failedCount.ResetFailedCount(account, new HttpClient() { BaseAddress = new Uri("http://joey.com/") });
+                _failedCount.ResetFailedCount(account);
                 return true;
             }
             else
             {
-                _failedCount.AddFailedCount(account, new HttpClient() { BaseAddress = new Uri("http://joey.com/") });
+                _failedCount.AddFailedCount(account);
 
-                var failedCount = _failedCount.GetFailedCount(account, new HttpClient() { BaseAddress = new Uri("http://joey.com/") });
-                _nLogAdapter.LogInfo($"accountId:{account} failed times:{failedCount}");
+                var failedCount = _failedCount.GetFailedCount(account);
+                _logger.LogInfo($"accountId:{account} failed times:{failedCount}");
 
-                _slackAdapter.PushMessage(account);
+                _messenger.PushMessage(account);
                 return false;
             }
         }
