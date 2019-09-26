@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using Dapper;
+using SlackAPI;
 
 namespace DependencyInjectionWorkshop.Models
 {
@@ -12,6 +13,14 @@ namespace DependencyInjectionWorkshop.Models
     {
         public bool Verify(string account, string password, string otp)
         {
+            var httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com/") };
+            var isLockedResponse = httpClient.PostAsJsonAsync("api/failedCounter/IsLocked", account).Result;
+
+            isLockedResponse.EnsureSuccessStatusCode();
+            if (isLockedResponse.Content.ReadAsAsync<bool>().Result)
+            {
+                throw new FailedTooManyTimesException();
+            }
             string passwordFromDb;
             using (var connection = new SqlConnection("my connection string"))
             {
@@ -29,7 +38,7 @@ namespace DependencyInjectionWorkshop.Models
 
             var hashedPassword = hash.ToString();
 
-            var httpClient = new HttpClient() { BaseAddress = new Uri("http://joey.com/") };
+            
             var response = httpClient.PostAsJsonAsync("api/otps", account).Result;
             if (!response.IsSuccessStatusCode)
             {
@@ -40,12 +49,36 @@ namespace DependencyInjectionWorkshop.Models
 
             if (passwordFromDb == hashedPassword && otp == currentOtp)
             {
+                
+                var resetResponse = httpClient.PostAsJsonAsync("api/failedCounter/Reset", account).Result;
+
+                resetResponse.EnsureSuccessStatusCode();
                 return true;
             }
             else
             {
+                
+                var failedCountResponse =
+                    httpClient.PostAsJsonAsync("api/failedCounter/GetFailedCount", account).Result;
+
+                failedCountResponse.EnsureSuccessStatusCode();
+
+                var failedCount = failedCountResponse.Content.ReadAsAsync<int>().Result;
+                var logger = NLog.LogManager.GetCurrentClassLogger();
+                logger.Info($"accountId:{account} failed times:{failedCount}");
+                var addFailedCountResponse = httpClient.PostAsJsonAsync("api/failedCounter/Add", account).Result;
+
+                addFailedCountResponse.EnsureSuccessStatusCode();
+
+                var slackClient = new SlackClient("my api token");
+                string message = $"{account} login failed";
+                slackClient.PostMessage(response1 => { }, "my channel", message, "my bot name");
                 return false;
             }
         }
+    }
+
+    public class FailedTooManyTimesException : Exception
+    {
     }
 }
