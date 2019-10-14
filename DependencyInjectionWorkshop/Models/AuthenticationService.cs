@@ -45,8 +45,6 @@ namespace DependencyInjectionWorkshop.Models
             ////檢查使用者密碼/otp是否正確
             if (passwordFromDb == hashedPassword && otp == currentOtp)
             {
-                ////重設帳號登入錯誤紀錄
-                _failedCount.ResetFailedCount(account);
                 return true;
             }
             else

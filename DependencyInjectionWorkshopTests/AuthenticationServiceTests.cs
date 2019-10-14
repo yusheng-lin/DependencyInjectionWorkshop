@@ -33,6 +33,7 @@ namespace DependencyInjectionWorkshopTests
             AuthenticationService = new AuthenticationService(_userService, _hash, _otpService, _failedCount);
             AuthenticationService= new LogFailedCountDecorator(AuthenticationService,_failedCount,_logger);
             AuthenticationService = new NotifyDecorator(AuthenticationService,_messenger);
+            AuthenticationService = new FailedCountDecorator(AuthenticationService,_failedCount );
         }
 
         [Test]
@@ -57,7 +58,7 @@ namespace DependencyInjectionWorkshopTests
             ShouldBeInValid(isValid);
         }
 
-       
+
         [Test]
         public void throw_exception_when_account_locked()
         {
@@ -78,7 +79,7 @@ namespace DependencyInjectionWorkshopTests
             WhenInvalid();
             ShouldAddFailedCount();
         }
-        
+
         [Test]
         public void log_failed_count_when_invalid()
         {
@@ -141,12 +142,12 @@ namespace DependencyInjectionWorkshopTests
             _failedCount.GetAccountIsLocked(defaultAccount).Returns(isLocked);
         }
 
-        
+
         private void ShouldAddFailedCount()
         {
             _failedCount.Received(1).AddFailedCount(DefaultAccount);
         }
-        
+
         private void ShouldResetFailedCount()
         {
             _failedCount.Received(1).ResetFailedCount(DefaultAccount);
