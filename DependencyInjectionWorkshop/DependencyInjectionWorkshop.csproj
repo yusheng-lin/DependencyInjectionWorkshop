@@ -79,6 +79,7 @@
     <Compile Include="Models\FailedCount.cs" />
     <Compile Include="Models\FailedCountDecorator.cs" />
     <Compile Include="Models\LogFailedCountDecorator.cs" />
+    <Compile Include="Models\LogMethodDecorator.cs" />
     <Compile Include="Models\NLogAdapter.cs" />
     <Compile Include="Models\NotifyDecorator.cs" />
     <Compile Include="Models\OtpService.cs" />

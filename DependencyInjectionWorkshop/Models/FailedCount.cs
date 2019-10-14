@@ -7,8 +7,13 @@ namespace DependencyInjectionWorkshop.Models
     {
         void AddFailedCount(string account);
         void ResetFailedCount(string account);
+        [AuditLog]
         bool GetAccountIsLocked(string account);
         int GetFailedCount(string account);
+    }
+
+    public class AuditLogAttribute : Attribute
+    {
     }
 
     public class FailedCount : IFailedCount

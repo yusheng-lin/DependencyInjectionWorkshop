@@ -30,7 +30,7 @@ namespace DependencyInjectionWorkshopTests
             _failedCount = Substitute.For<IFailedCount>();
             _otpService = Substitute.For<IOtpService>();
             _messenger = Substitute.For<IMessenger>();
-            AuthenticationService = new AuthenticationService(_userService, _hash, _otpService, _failedCount);
+            AuthenticationService = new AuthenticationService(_userService, _hash, _otpService);
             AuthenticationService= new LogFailedCountDecorator(AuthenticationService,_failedCount,_logger);
             AuthenticationService = new NotifyDecorator(AuthenticationService,_messenger);
             AuthenticationService = new FailedCountDecorator(AuthenticationService,_failedCount );
