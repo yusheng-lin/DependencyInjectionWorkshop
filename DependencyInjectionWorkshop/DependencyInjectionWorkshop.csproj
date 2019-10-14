@@ -77,7 +77,9 @@
   <ItemGroup>
     <Compile Include="Models\AuthenticationService.cs" />
     <Compile Include="Models\FailedCount.cs" />
+    <Compile Include="Models\LogFailedCountDecorator.cs" />
     <Compile Include="Models\NLogAdapter.cs" />
+    <Compile Include="Models\NotifyDecorator.cs" />
     <Compile Include="Models\OtpService.cs" />
     <Compile Include="Models\Sha256Adapter.cs" />
     <Compile Include="Models\SlackAdapter.cs" />

@@ -14,7 +14,7 @@ namespace DependencyInjectionWorkshopTests
         private IFailedCount _failedCount;
         private IOtpService _otpService;
         private IMessenger _messenger;
-        protected internal AuthenticationService AuthenticationService;
+        protected internal IAuthentication AuthenticationService;
         protected internal string DefaultAccount = "min";
         protected internal string HashedPassword = "my hashed password";
         protected internal string InputPassword = "pass.123";
@@ -30,7 +30,9 @@ namespace DependencyInjectionWorkshopTests
             _failedCount = Substitute.For<IFailedCount>();
             _otpService = Substitute.For<IOtpService>();
             _messenger = Substitute.For<IMessenger>();
-            AuthenticationService = new AuthenticationService(_userService, _hash, _otpService, _logger, _messenger, _failedCount);
+            AuthenticationService = new AuthenticationService(_userService, _hash, _otpService, _failedCount);
+            AuthenticationService= new LogFailedCountDecorator(AuthenticationService,_failedCount,_logger);
+            AuthenticationService = new NotifyDecorator(AuthenticationService,_messenger);
         }
 
         [Test]

@@ -4,22 +4,23 @@ using SlackAPI;
 
 namespace DependencyInjectionWorkshop.Models
 {
-    public class AuthenticationService
+    public interface IAuthentication
+    {
+        bool Verify(string account, string password, string otp);
+    }
+
+    public class AuthenticationService : IAuthentication
     {
         private readonly IUserService _userService;
         private readonly IHash _hash;
         private readonly IOtpService _otpService;
-        private readonly ILogger _logger;
-        private readonly IMessenger _messenger;
         private readonly IFailedCount _failedCount;
 
-        public AuthenticationService(IUserService userService, IHash hash, IOtpService otpService, ILogger logger, IMessenger messenger, IFailedCount failedCount)
+        public AuthenticationService(IUserService userService, IHash hash, IOtpService otpService, IFailedCount failedCount)
         {
             _userService = userService;
             _hash = hash;
             _otpService = otpService;
-            _logger = logger;
-            _messenger = messenger;
             _failedCount = failedCount;
         }
 
@@ -52,14 +53,6 @@ namespace DependencyInjectionWorkshop.Models
             {
                 ////累計登入錯誤次數
                 _failedCount.AddFailedCount(account);
-
-                var failedCount = _failedCount.GetFailedCount(account);
-
-                ////寫Log
-                _logger.LogInfo($"accountId:{account} failed times:{failedCount}");
-
-                ////(email/slack)通知使用者登入失敗
-                _messenger.PushMessage(account);
                 return false;
             }
         }
